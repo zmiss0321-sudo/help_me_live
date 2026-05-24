@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>帮我活一下</title>
+<style>
+/* ==================== TOKENS ==================== */
+:root {
+  /* Cement Gray Theme — 水泥灰 + 手机通知轰炸 */
+  --color-bg-main: #DDE5E1;
+  --color-panel-bg: #EEF2F0;
+  --color-card-bg: #FCF9F4;
+  --color-text-main: #202627;
+  --color-text-secondary: #5A6260;
+  --color-danger: #FF4D2E;
+  --color-danger-soft: #FF7A66;
+  --color-cyan: #00BFC6;
+  --color-neutral-progress: #A9B8AE;
+  --color-border: #D6DEDA;
+  --color-structure: #202627;
+  --popup-button-bg: rgba(252, 249, 244, 0.75);
+  --popup-button-border: #D6DEDA;
+  --popup-button-text: #5A6260;
+  --popup-button-hover-bg: #EEF2F0;
+  --bg-main: var(--color-bg-main); --bg-noise: rgba(0,191,198,.10); --bg-section: var(--color-panel-bg);
+  --bg-card: var(--color-card-bg); --bg-card-front: #fffdfa; --bg-card-active: #F7F2EB; --bg-card-sub: #F2EDE6;
+  --bg-deeper: #D1DCD7; --surface: var(--color-panel-bg); --surface-raised: #F6F8F7; --surface-focus: var(--popup-button-hover-bg);
+  --text-main: var(--color-text-main); --text-sub: var(--color-text-secondary); --text-muted: #77817E; --text-tertiary: var(--color-text-secondary);
+  --text-light: var(--color-text-main); --text-on-dark: var(--color-text-main);
+  --text-warning: var(--color-danger-soft); --text-danger: var(--color-danger);
+  --border-subtle: var(--color-border); --border-card: var(--color-border); --border-soft: var(--color-border);
+  --border-active: rgba(32,38,39,0.24); --border-strong: rgba(32,38,39,0.28);
+  --border-warning: rgba(255,77,46,0.58);
+  --accent: var(--color-cyan); --radius-sm:6px; --radius-md:10px; --radius-lg:14px;
+  --font-stack: -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+  --shadow-card: 0 1px 2px rgba(32,38,39,0.10), 0 8px 22px rgba(32,38,39,0.12);
+  --shadow-card-front: 0 2px 8px rgba(32,38,39,0.16), 0 14px 34px rgba(32,38,39,0.18);
+  --progress-gray: var(--color-neutral-progress); --progress-bg: #DCE4E0;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100vw;height:100dvh;height:100vh;overflow:hidden;font-family:var(--font-stack);background:var(--bg-main);color:var(--text-on-dark);user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:relative}
+
+/* ==================== SCREENS ==================== */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s;z-index:1}
+.screen.hidden{opacity:0;pointer-events:none;z-index:0}
+
+/* ==================== INTRO ==================== */
+#screen-intro{background:var(--bg-main);text-align:center;padding:20px}
+.intro-glitch{font-size:11px;color:var(--text-muted);letter-spacing:3px;margin-bottom:24px;animation:flicker 4s infinite}
+.intro-title{font-size:34px;font-weight:800;color:var(--text-light);letter-spacing:6px;margin-bottom:16px}
+.intro-subtitle{font-size:13px;color:var(--text-sub);line-height:2;margin-bottom:56px;letter-spacing:1px}
+.intro-btn{display:inline-block;padding:16px 52px;border:1px solid var(--border-soft);border-radius:50px;color:var(--text-light);font-size:14px;letter-spacing:4px;cursor:pointer;background:transparent;transition:background .25s,border-color .25s}
+.intro-btn:active{background:var(--surface-focus);border-color:var(--text-light)}
+.intro-ver{font-size:10px;color:var(--text-muted);margin-top:48px;letter-spacing:2px}
+
+/* ==================== TUTORIAL ==================== */
+#screen-tutorial{background:var(--bg-main);padding:0;overflow-y:auto;justify-content:flex-start;min-height:100dvh}
+#tutorial-content{display:flex;flex-direction:column;min-height:100dvh;width:100%}
+.tutorial-intro{text-align:center;padding:40px 20px 20px}
+.tutorial-avatar-wrap{width:64px;height:64px;border-radius:50%;background:#F3E6D8;border:1.5px solid var(--color-border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:avatarBreath 4s ease-in-out infinite;position:relative}
+.tutorial-avatar-wrap::after{content:'';position:absolute;right:8px;top:13px;width:9px;height:14px;border-radius:50% 50% 55% 45%;background:rgba(0,191,198,.28);transform:rotate(18deg)}
+.tutorial-avatar-emoji{font-size:30px;line-height:1;filter:saturate(.9)}
+.tutorial-title{font-size:17px;font-weight:700;letter-spacing:4px;margin-bottom:12px;color:var(--text-light)}
+.tutorial-desc{font-size:13px;color:var(--text-sub);line-height:2;letter-spacing:1px;max-width:260px;margin:0 auto}
+.tutorial-btn{display:block;margin:32px auto 0;padding:13px 40px;border:1px solid var(--border-soft);border-radius:50px;color:var(--text-light);font-size:14px;letter-spacing:3px;cursor:pointer;background:transparent;transition:background .25s,border-color .25s}
+.tutorial-btn:active{background:var(--surface-focus);border-color:var(--text-light)}
+.tutorial-step-indicator{text-align:center;padding:16px 0 8px;font-size:11px;color:var(--text-muted);letter-spacing:3px;flex-shrink:0}
+.tutorial-card-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 16px;gap:12px}
+.tutorial-demo-card{width:82vw;max-width:400px;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius-lg);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;position:relative;box-shadow:var(--shadow-card);color:var(--text-main)}
+.tutorial-demo-card:active{cursor:grabbing}
+.tutorial-demo-card.dragging{cursor:grabbing;box-shadow:var(--shadow-card-front);background:var(--bg-card-active);border-color:var(--border-active);z-index:10}
+.tutorial-demo-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;font-size:10px}
+.tutorial-demo-source{color:var(--text-sub);letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.tutorial-demo-source-icon{font-size:14px;filter:saturate(.8)}
+.tutorial-demo-body{padding:10px 14px 8px;font-size:13px;color:var(--text-main);line-height:1.7;min-height:36px}
+.tutorial-demo-hints{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px 12px;font-size:10px;color:var(--text-sub);letter-spacing:1px;border-top:1px solid var(--border-subtle);margin:0 8px;pointer-events:none}
+.tutorial-demo-hint-sep{color:var(--text-muted);font-size:8px}
+.tutorial-demo-card .hold-ring{position:absolute;bottom:10px;right:10px;width:28px;height:28px;border-radius:50%;border:2px solid transparent;border-top-color:var(--progress-gray);opacity:0;transition:opacity .15s}
+.tutorial-demo-card .hold-ring.active{opacity:1;animation:holdSpin 1s linear infinite}
+.tutorial-demo-card .hold-ring.done{border-top-color:var(--text-sub);opacity:1;animation:none}
+.tutorial-demo-card .rapid-dots{position:absolute;top:8px;right:40px;display:flex;gap:3px;opacity:0;transition:opacity .15s}
+.tutorial-demo-card .rapid-dots span{width:5px;height:5px;border-radius:50%;background:var(--text-muted);transition:background .15s}
+.tutorial-demo-card .rapid-dots span.filled{background:var(--text-sub)}
+.tutorial-demo-card .rapid-dots.active{opacity:1}
+.tutorial-swipe-fb{position:absolute;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity .1s;white-space:nowrap;z-index:5}
+.tutorial-swipe-fb.left{right:calc(100% + 10px);color:var(--text-sub)}
+.tutorial-swipe-fb.right{left:calc(100% + 10px);color:var(--text-main)}
+.tutorial-swipe-fb.up{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);color:var(--text-sub)}
+.tutorial-swipe-fb.down{top:calc(100% + 6px);left:50%;transform:translateX(-50%);color:var(--text-sub)}
+.tutorial-swipe-fb.show{opacity:1}
+.tutorial-swipe-fb.trigger{opacity:1;font-size:15px}
+.tutorial-feedback-area{flex-shrink:0;padding:0 16px 12px;min-height:20px;width:100%;max-width:440px;margin:0 auto}
+.tutorial-result{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:14px;text-align:center;color:var(--text-light)}
+.tutorial-result-choice{font-size:11px;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px}
+.tutorial-result-choice span{color:var(--text-light)}
+.tutorial-result-effects{display:flex;justify-content:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.tutorial-result-eff{font-size:10.5px;letter-spacing:.5px}
+.tutorial-result-eff.pos{color:var(--text-light)}.tutorial-result-eff.neg{color:var(--text-danger)}
+.tutorial-result-explain{font-size:11px;color:var(--text-muted);line-height:1.6;letter-spacing:.5px;margin-bottom:12px}
+.tutorial-result-btns{display:flex;gap:8px;justify-content:center}
+.tutorial-result-btns button{padding:10px 20px;border-radius:20px;font-size:12px;letter-spacing:1px;cursor:pointer;font-family:var(--font-stack);background:transparent;transition:background .2s,border-color .2s}
+.tutorial-retry-btn{border:1px solid var(--border-soft);color:var(--text-muted)}
+.tutorial-retry-btn:active{background:var(--surface-focus)}
+.tutorial-next-btn{border:1px solid var(--border-active);color:var(--text-light)}
+.tutorial-next-btn:active{background:var(--surface-focus)}
+.tutorial-start-btn{border:1px solid var(--text-light);color:var(--text-light);padding:12px 32px}
+.tutorial-start-btn:active{background:var(--surface-focus)}
+.tutorial-final{text-align:center;padding:20px 0}
+.tutorial-final-q{font-size:14px;color:var(--text-muted);letter-spacing:1px;margin-bottom:20px}
+.tutorial-final-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tutorial-nav-area{flex-shrink:0;padding:8px 16px 20px;text-align:center}
+.tutorial-result{max-width:360px;margin:0 auto;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:13px 14px;text-align:left;box-shadow:var(--shadow-card);color:var(--text-light)}
+.tutorial-result-choice{font-size:12px;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px}.tutorial-result-choice span{color:var(--text-light);font-weight:800}
+.tutorial-result-effects{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 9px}
+.tutorial-result-eff{font-size:11px;letter-spacing:.5px;padding:6px 7px;border:1px solid var(--border-subtle);border-radius:7px;background:rgba(252,249,244,.32)}
+.tutorial-result-eff.pos{color:var(--text-light)}.tutorial-result-eff.neg{color:var(--text-danger)}.tutorial-result-eff.zero{color:var(--text-muted)}
+.tutorial-result-explain{font-size:11px;color:var(--text-sub);line-height:1.55;letter-spacing:.5px;margin-bottom:10px}
+.tutorial-result-btns{text-align:center}.tutorial-result-btns button{padding:10px 24px;border:1px solid var(--border-active);border-radius:50px;background:transparent;color:var(--text-light);font-size:12px;letter-spacing:2px;font-family:var(--font-stack)}
+.tutorial-rules{width:100%;max-width:380px;margin:auto;padding:20px 18px;color:var(--text-main)}
+.tutorial-rules-title{font-size:18px;line-height:1.5;font-weight:800;letter-spacing:2px;color:var(--text-light);text-align:center;margin-bottom:14px}
+.tutorial-rules-card{background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:14px;box-shadow:var(--shadow-card)}
+.tutorial-rules-item{font-size:12px;line-height:1.55;color:var(--text-sub);padding:7px 0;border-bottom:1px solid var(--border-subtle)}.tutorial-rules-item:last-child{border-bottom:0}
+.tutorial-rules-item b{color:var(--text-light);font-size:12px}.tutorial-rules-note{font-size:12px;line-height:1.7;color:var(--text-muted);margin:12px 0;text-align:left}
+.tutorial-rules-go{display:block;margin:14px auto 0;padding:12px 38px;border:1px solid var(--text-light);border-radius:50px;background:transparent;color:var(--text-light);font-size:13px;letter-spacing:3px;font-family:var(--font-stack)}
+
+/* ==================== LOADING ==================== */
+#screen-loading{background:var(--bg-main);padding:20px}
+.loading-title{font-size:14px;color:var(--text-muted);letter-spacing:2px;margin-bottom:44px}
+.loading-list{list-style:none;width:100%;max-width:280px}
+.loading-list li{font-size:12px;color:var(--text-muted);padding:10px 0;border-bottom:1px solid var(--color-border);letter-spacing:1px;transition:color .4s}
+.loading-list li.done{color:var(--text-sub)}
+.loading-list li.current{color:var(--text-light);animation:pulse .8s infinite}
+.loading-done{font-size:14px;color:var(--text-light);margin-top:44px;letter-spacing:2px;opacity:0;transition:opacity .6s}
+.loading-done.show{opacity:1}
+.loading-tag{font-size:11px;color:var(--text-muted);margin-top:14px;letter-spacing:1px;opacity:0;transition:opacity .6s .4s}
+.loading-tag.show{opacity:1}
+
+/* ==================== GAME SCREEN ==================== */
+#screen-game{background:var(--bg-main);flex-direction:column;justify-content:flex-start;padding:0;overflow:hidden;padding-bottom:80px}
+
+#fake-statusbar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:6px 18px 4px;font-size:10px;color:var(--text-muted);background:var(--bg-deeper);flex-shrink:0;border-bottom:1px solid var(--color-border)}
+#fake-statusbar .time{color:var(--text-sub);letter-spacing:1px;font-variant-numeric:tabular-nums}
+#fake-statusbar .icons{display:flex;gap:8px;align-items:center;font-size:9px}
+#fake-statusbar .signal{color:var(--color-danger);letter-spacing:1px;font-weight:700}
+#fake-statusbar .battery{width:20px;height:9px;border:1px solid rgba(32,38,39,.22);border-radius:2px;padding:1px;position:relative}
+#fake-statusbar .battery::after{content:'';position:absolute;right:-3px;top:1.5px;width:2px;height:4px;background:rgba(32,38,39,.22);border-radius:0 1px 1px 0}
+#fake-statusbar .battery-inner{height:100%;background:var(--progress-gray);border-radius:1px;transition:width .5s}
+
+#game-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:8px 18px;flex-shrink:0;background:var(--bg-section);border-bottom:1px solid var(--color-border)}
+#game-header .title{font-size:12px;font-weight:700;letter-spacing:3px;color:var(--text-muted)}
+#game-header .phase-tag{font-size:9px;color:var(--text-danger);background:rgba(255,77,46,.08);padding:3px 10px;border-radius:10px;letter-spacing:2px;border:1px solid rgba(255,77,46,.18)}
+
+/* ---- Stat cards row ---- */
+#stats-area{width:100%;padding:10px 12px 8px;flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--bg-section);border-bottom:1px solid var(--color-border)}
+.stat-card{background:rgba(252,249,244,.42);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.stat-card-header{display:flex;align-items:center;gap:6px}
+.stat-card-icon{font-size:16px;line-height:1;color:var(--color-structure);filter:none}
+.stat-card-name{font-size:10px;color:var(--text-muted);letter-spacing:1px;font-weight:600}
+.stat-card-val{font-size:11px;color:var(--text-light);font-variant-numeric:tabular-nums;text-align:right;flex:1}
+.stat-card-bar-wrap{width:100%;height:4px;background:var(--progress-bg);border-radius:2px;overflow:hidden}
+.stat-card-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.stat-card-warn{font-size:8px;color:var(--text-danger);display:none;animation:blink .7s infinite}
+
+.stat-card-bar-fill.flash{filter:brightness(1.6)}
+
+/* Avatar */
+#avatar-area{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;flex-shrink:0;gap:4px;background:var(--bg-section)}
+#avatar-wrap{width:48px;height:48px;border-radius:50%;background:#F3E6D8;border:1.5px solid var(--color-border);display:flex;align-items:center;justify-content:center;transition:border-color .5s,box-shadow .5s;animation:avatarBreath 4s ease-in-out infinite;position:relative}
+#avatar-wrap::before{content:'';position:absolute;left:8px;top:12px;width:4px;height:11px;border-left:2px solid var(--color-danger-soft);border-right:2px solid var(--color-danger-soft);transform:rotate(-18deg);opacity:.75}
+#avatar-wrap::after{content:'';position:absolute;right:7px;top:12px;width:7px;height:11px;border-radius:50% 50% 55% 45%;background:rgba(0,191,198,.32);transform:rotate(18deg)}
+#avatar-emoji{font-size:22px;line-height:1;transition:transform .3s;filter:saturate(.85)}
+#avatar-wrap.danger{border-color:rgba(255,77,46,.55);box-shadow:0 0 18px rgba(255,77,46,.25);animation:avatarDangerPulse .8s infinite}
+#avatar-wrap.warning{border-color:rgba(255,122,102,.45);box-shadow:0 0 10px rgba(255,122,102,.14)}
+#avatar-wrap.danger #avatar-emoji{animation:avatarShake .3s infinite}
+#avatar-status{font-size:9px;color:var(--text-muted);letter-spacing:1.5px;max-width:180px;text-align:center;transition:color .5s}
+#avatar-status.danger-text{color:var(--text-danger)}
+#avatar-status.warning-text{color:var(--text-danger)}
+
+/* Popup layer */
+#popup-layer{flex:1;width:100%;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 18%,var(--bg-noise) 0%,transparent 54%),linear-gradient(180deg,rgba(238,242,240,.92),var(--bg-main));padding-bottom:90px}
+
+/* ---- Popup cards (light gray notification style) ---- */
+.popup{position:absolute;width:86%;max-width:340px;background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-soft);box-shadow:var(--shadow-card);z-index:10;cursor:grab;transition:transform .25s cubic-bezier(.25,.8,.25,1.2),opacity .3s,box-shadow .3s,border-color .3s,background .3s,left .25s,top .25s;animation:popupIn .2s cubic-bezier(.175,.885,.32,1.275);color:var(--text-main)}
+.popup::before{content:'';position:absolute;left:0;top:0;width:100%;height:3px;background:var(--color-danger);border-radius:var(--radius-lg) var(--radius-lg) 0 0;opacity:.72;transform:scaleX(var(--countdown-progress,1));transform-origin:left center;transition:transform .2s linear}
+.popup:active{cursor:grabbing}
+
+/* Stack layers — darken deeper cards (rotation via JS dataset) */
+.popup.stack-deep{opacity:.52;filter:saturate(.85);pointer-events:none}
+.popup.stack-mid{opacity:.74;filter:saturate(.92)}
+.popup.stack-front{opacity:1;filter:none}
+.popup.dragging{cursor:grabbing;box-shadow:var(--shadow-card-front);transition:none;z-index:100!important;background:var(--bg-card-front);border-color:var(--border-active);transform:none!important}
+.popup.urgent{border-color:var(--border-warning);animation:urgentPulse 1s infinite}
+.popup.critical-time{border-color:var(--text-danger);animation:urgentPulse .5s infinite;box-shadow:0 0 20px rgba(255,77,46,.22)}
+.popup.timed-out{animation:popupExplode .35s forwards;pointer-events:none}
+
+/* Swipe feedback overlay */
+.popup-swipe-fb{position:absolute;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity .1s;white-space:nowrap;z-index:5}
+.popup-swipe-fb.left{right:calc(100% + 10px);color:var(--text-sub)}
+.popup-swipe-fb.right{left:calc(100% + 10px);color:var(--text-main)}
+.popup-swipe-fb.up{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);color:var(--text-sub)}
+.popup-swipe-fb.down{top:calc(100% + 6px);left:50%;transform:translateX(-50%);color:var(--text-sub)}
+.popup-swipe-fb.show{opacity:1}
+.popup-swipe-fb.trigger{opacity:1;font-size:15px}
+
+/* Card internals */
+.popup-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;font-size:10px}
+.popup-source{display:flex;align-items:center;gap:6px;color:var(--text-sub);letter-spacing:1px;font-weight:600}
+.popup-source-icon{font-size:14px;filter:saturate(.8)}
+.popup-timer{font-size:12px;color:var(--text-sub);font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:1px}
+.popup-timer.urgent{color:var(--text-danger);animation:blink .6s infinite}
+.popup-countdown-bar{height:2px;background:rgba(90,98,96,.08);margin:0 14px;border-radius:1px;overflow:hidden;position:relative}
+.popup-countdown-bar.urgent{background:rgba(255,77,46,.08)}
+.popup-countdown-fill{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--progress-gray);border-radius:1px;transition:transform .2s linear;transform-origin:left center}
+.popup-countdown-fill.urgent{background:var(--text-danger)}
+.popup-body{padding:8px 14px 6px;font-size:13px;color:var(--text-main);line-height:1.6;min-height:36px;letter-spacing:.5px}
+
+/* Gesture hints — gray capsule pills */
+.popup-hints{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 14px 10px;font-size:9px;color:var(--text-sub);letter-spacing:1px;border-top:1px solid var(--border-subtle);margin:0 8px;pointer-events:none}
+.popup-hints span{background:var(--popup-button-bg);padding:2px 8px;border-radius:10px;border:1px solid var(--popup-button-border);color:var(--popup-button-text);box-shadow:0 1px 3px rgba(32,38,39,.05)}
+.popup-hints .hint-sep{color:var(--text-muted);font-size:8px;opacity:.7;background:none;border:none;padding:0}
+
+/* Long press progress ring */
+.popup .hold-ring{position:absolute;bottom:8px;right:8px;width:28px;height:28px;border-radius:50%;border:2px solid transparent;border-top-color:var(--progress-gray);opacity:0;transition:opacity .15s}
+.popup .hold-ring.active{opacity:1;animation:holdSpin 1s linear infinite}
+.popup .hold-ring.done{border-top-color:var(--text-sub);opacity:1;animation:none}
+
+/* Rapid click feedback */
+.popup .rapid-dots{position:absolute;top:8px;right:40px;display:flex;gap:3px;opacity:0;transition:opacity .15s}
+.popup .rapid-dots span{width:5px;height:5px;border-radius:50%;background:var(--text-muted);transition:background .15s}
+.popup .rapid-dots span.filled{background:var(--text-sub)}
+.popup .rapid-dots.active{opacity:1}
+
+/* Random event card */
+.popup.random-event{border-color:rgba(255,77,46,.48);box-shadow:0 2px 20px rgba(255,77,46,.14)}
+.popup.random-event .popup-header .popup-source{color:var(--text-danger)}
+
+/* Empty state hint */
+#empty-hint{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:var(--text-muted);letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity 1s;text-align:center;z-index:5}
+#empty-hint.show{opacity:1}
+
+/* Pressure indicator */
+#pressure-indicator{position:absolute;top:8px;right:12px;font-size:9px;color:var(--text-muted);letter-spacing:1px;pointer-events:none;opacity:0;transition:opacity .5s;z-index:160}
+#pressure-indicator.show{opacity:1}
+#pressure-indicator.high{color:var(--text-danger);animation:blink 1s infinite}
+
+/* Phase transition */
+#phase-transition{position:absolute;inset:0;z-index:300;background:rgba(28,30,33,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s}
+#phase-transition.show{opacity:1;pointer-events:auto}
+.phase-trans-phase{font-size:11px;color:var(--text-muted);letter-spacing:4px;margin-bottom:20px}
+.phase-trans-name{font-size:28px;font-weight:700;color:var(--text-light);letter-spacing:6px;margin-bottom:16px}
+.phase-trans-desc{font-size:14px;color:var(--text-sub);line-height:2;text-align:center;letter-spacing:1px;max-width:260px}
+.phase-trans-btn{margin-top:40px;padding:12px 40px;border:1px solid var(--border-soft);border-radius:50px;color:var(--text-light);font-size:13px;letter-spacing:3px;cursor:pointer;background:transparent;transition:background .25s,border-color .25s}
+.phase-trans-btn:active{background:var(--surface-focus);border-color:var(--text-light)}
+
+#crisis-overlay{position:absolute;inset:0;pointer-events:none;z-index:150;background:transparent;transition:background .3s,box-shadow .3s}
+#crisis-overlay.active{background:rgba(255,77,46,.045);box-shadow:inset 0 0 40px rgba(255,77,46,.10)}
+.system-toast{position:absolute;top:12%;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text-muted);background:rgba(252,249,244,.96);padding:7px 16px;border-radius:16px;border:1px solid var(--color-border);letter-spacing:1px;pointer-events:none;z-index:180;animation:toastFade 3s forwards;box-shadow:0 4px 18px rgba(32,38,39,.12)}
+
+/* ==================== BOTTOM ACTION BAR ==================== */
+#bottom-bar{width:100%;display:flex;justify-content:space-around;align-items:center;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom, 10px));flex-shrink:0;background:var(--bg-deeper);border-top:1px solid var(--color-border);position:absolute;bottom:0;left:0;z-index:200}
+.bottom-bar-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none;border:none;color:var(--text-muted);font-family:var(--font-stack);padding:4px 20px;transition:color .2s,transform .15s;-webkit-tap-highlight-color:transparent}
+.bottom-bar-btn:active{color:var(--text-light);transform:scale(.95)}
+.bottom-bar-btn-icon{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--color-structure);filter:none}
+.bottom-bar-btn-label{font-size:10px;letter-spacing:2px}
+.bottom-bar-btn .badge{position:absolute;top:-2px;right:-2px;background:var(--text-danger);color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:700}
+
+/* ==================== EMERGENCY DRAWER ==================== */
+#emergency-drawer{position:absolute;bottom:0;left:0;right:0;max-height:55vh;background:var(--bg-deeper);border-top:1px solid var(--color-border);border-radius:20px 20px 0 0;z-index:250;transform:translateY(100%);transition:transform .35s cubic-bezier(.25,.8,.25,1.2);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -4px 24px rgba(32,38,39,.22)}
+#emergency-drawer.open{transform:translateY(0)}
+#emergency-drawer-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 8px;flex-shrink:0}
+#emergency-drawer-title{font-size:15px;font-weight:700;letter-spacing:3px;color:var(--text-light)}
+#emergency-drawer-subtitle{font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-top:2px}
+#emergency-drawer-close{width:32px;height:32px;border-radius:50%;background:var(--surface);border:1px solid var(--color-border);color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#emergency-drawer-close:active{background:var(--surface-focus);color:var(--text-light)}
+#emergency-drawer-list{flex:1;overflow-y:auto;padding:8px 16px 16px}
+.emergency-item{background:var(--color-card-bg);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:14px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.emergency-item-header{display:flex;align-items:center;justify-content:space-between}
+.emergency-item-source{font-size:12px;font-weight:700;color:var(--text-light);letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.emergency-item-source-icon{font-size:14px;filter:saturate(.8)}
+.emergency-item-time{font-size:12px;color:var(--text-danger);font-weight:700;font-variant-numeric:tabular-nums}
+.emergency-item-body{font-size:12px;color:var(--text-sub);line-height:1.5}
+.emergency-item-effects{display:flex;gap:6px;flex-wrap:wrap;font-size:9px}
+.emergency-item-eff{background:rgba(255,77,46,.08);color:var(--text-danger);padding:2px 8px;border-radius:8px;border:1px solid rgba(255,77,46,.18);letter-spacing:1px}
+.emergency-item-actions{display:flex;gap:8px}
+.emergency-item-btn{padding:8px 16px;border-radius:16px;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:var(--font-stack);background:transparent;transition:background .2s,border-color .2s}
+.emergency-item-btn.primary{border:1px solid var(--border-soft);color:var(--text-light)}
+.emergency-item-btn.primary:active{background:var(--surface-focus)}
+.emergency-item-btn.danger{border:1px solid rgba(255,77,46,.35);color:var(--text-danger)}
+.emergency-item-btn.danger:active{background:rgba(255,77,46,.1)}
+.emergency-empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;letter-spacing:2px;line-height:2}
+
+/* ==================== DRAWER BACKDROP ==================== */
+#drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:245;opacity:0;pointer-events:none;transition:opacity .3s}
+#drawer-backdrop.show{opacity:1;pointer-events:auto}
+
+/* ==================== SETTLEMENT ==================== */
+#screen-settlement{background:var(--bg-main);padding:14px 16px;overflow:hidden;justify-content:center}
+.settle-header{text-align:center;margin:0 0 12px}
+.settle-title{font-size:17px;font-weight:800;letter-spacing:3px;margin-bottom:4px}
+.settle-title.win{color:var(--text-light)}.settle-title.lose{color:var(--text-danger)}
+.settle-rating{font-size:50px;font-weight:800;letter-spacing:2px;margin:2px 0;line-height:1}
+.settle-rating.S{color:var(--text-light)}.settle-rating.A{color:var(--text-light)}.settle-rating.B{color:var(--text-sub)}.settle-rating.C{color:var(--text-danger)}.settle-rating.D{color:var(--text-danger)}.settle-rating.SLAVE{color:var(--text-danger);font-size:34px}
+.settle-card{width:100%;max-width:360px;background:var(--surface);border-radius:10px;border:1px solid var(--color-border);padding:10px;margin:7px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(62px,1fr));gap:6px}
+.settle-row{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:50px;padding:7px 3px;font-size:10px;border:1px solid var(--color-border);border-radius:7px;letter-spacing:.5px;background:rgba(252,249,244,.34)}
+.settle-row .label{color:var(--text-muted);white-space:nowrap}.settle-row .val{color:var(--text-sub);font-size:15px;font-weight:800;letter-spacing:0}
+.settle-title-name{text-align:center;font-size:14px;font-weight:800;letter-spacing:2px;margin:6px 0 0;padding:9px 12px;background:var(--surface);border:1px solid var(--color-border);border-radius:8px;color:var(--text-light);max-width:360px;width:100%}
+.settle-comment{text-align:left;font-size:12px;color:var(--text-sub);line-height:1.55;margin:8px 0 0;letter-spacing:.5px;max-width:360px;background:rgba(252,249,244,.3);border:1px solid var(--border-subtle);border-radius:8px;padding:10px}
+.settle-why-title{font-size:11px;color:var(--text-light);font-weight:800;letter-spacing:1px;margin-bottom:5px}.settle-why-text{font-size:12px;color:var(--text-sub);line-height:1.55}
+.settle-restart{display:block;margin:12px auto 0;padding:11px 34px;border:1px solid var(--border-soft);border-radius:50px;color:var(--text-light);font-size:13px;letter-spacing:3px;background:transparent;cursor:pointer}
+.settle-restart:active{background:var(--surface-focus);border-color:var(--text-light)}
+.settle-footnote{text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px;letter-spacing:1px;font-weight:600}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes popupIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes popupExplode{0%{transform:scale(1);opacity:1;background:var(--bg-card)}50%{transform:scale(1.04);border-color:var(--text-danger);background:#f0e8e8}100%{transform:scale(.9);opacity:0}}
+@keyframes urgentPulse{0%,100%{border-color:var(--text-danger)}50%{border-color:rgba(255,77,46,.65);box-shadow:0 0 12px rgba(255,77,46,.18)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes flicker{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes toastFade{0%{opacity:0;transform:translateX(-50%) translateY(8px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}78%{opacity:1}100%{opacity:0}}
+@keyframes screenShake{0%,100%{transform:translate(0)}25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,1px)}75%{transform:translate(-1px,-1px)}}
+.shaking{animation:screenShake .15s infinite}
+@keyframes avatarBreath{0%,100%{box-shadow:0 0 8px rgba(0,191,198,.06)}50%{box-shadow:0 0 18px rgba(0,191,198,.16)}}
+@keyframes avatarDangerPulse{0%,100%{box-shadow:0 0 12px rgba(255,77,46,.18)}50%{box-shadow:0 0 24px rgba(255,77,46,.36)}}
+@keyframes avatarShake{0%,100%{transform:translate(0)}25%{transform:translate(1px,0)}75%{transform:translate(-1px,0)}}
+@keyframes holdSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes cardBurst{0%{transform:scale(1.08);opacity:.7}60%{transform:scale(.98)}100%{transform:scale(1);opacity:1}}
+.popup.burst-in{animation:cardBurst .34s cubic-bezier(.16,.9,.28,1.12)}
+.popup.anchor-center-low{animation:popupRise .36s cubic-bezier(.16,.9,.28,1.08)}
+.popup.anchor-left-float{animation:popupSlideLeft .34s cubic-bezier(.16,.9,.28,1.08)}
+.popup.anchor-right-float{animation:popupSlideRight .34s cubic-bezier(.16,.9,.28,1.08)}
+.popup.anchor-top-drop{animation:popupDrop .38s cubic-bezier(.16,.9,.28,1.1)}
+.popup.interrupt-in{animation:interruptHit .34s ease-out}
+.popup.revisit-in::after{content:attr(data-revisit-label);position:absolute;right:12px;top:-10px;font-size:9px;color:var(--color-danger);background:var(--color-card-bg);border:1px solid var(--color-border);border-radius:10px;padding:2px 8px;letter-spacing:1px;box-shadow:0 2px 8px rgba(32,38,39,.12)}
+.popup.side-hint{pointer-events:none}
+.popup.side-hint .popup-body{max-height:22px;overflow:hidden;opacity:.72}
+.popup.side-hint .popup-hints,.popup.side-hint .hold-ring,.popup.side-hint .rapid-dots{display:none}
+@keyframes popupRise{0%{transform:translateY(28px) scale(.96);opacity:0}100%{opacity:1}}
+@keyframes popupSlideLeft{0%{transform:translateX(-34px) scale(.98);opacity:0}100%{opacity:1}}
+@keyframes popupSlideRight{0%{transform:translateX(34px) scale(.98);opacity:0}100%{opacity:1}}
+@keyframes popupDrop{0%{transform:translateY(-34px) scale(.98);opacity:0}70%{transform:translateY(4px)}100%{opacity:1}}
+@keyframes interruptHit{0%{transform:translateX(42px) scale(1.02);opacity:.72}55%{transform:translateX(-3px) scale(1)}100%{opacity:1}}
+@keyframes slideDownOut{from{transform:translateY(0);opacity:1}to{transform:translateY(40px);opacity:0}}
+.popup.resolved{animation:slideDownOut .25s ease-in forwards}
+@keyframes cardShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.popup.wrong-action{animation:cardShake .4s ease-out}
+.popup.focus-blocked{animation:cardShake .28s ease-out;border-color:var(--color-border)}
+
+/* Mobile touch/focus safety overrides */
+#screen-game{padding-bottom:118px}
+#fake-statusbar{padding-top:4px;padding-bottom:3px}
+#game-header{padding-top:6px;padding-bottom:6px}
+#stats-area{padding-top:7px;padding-bottom:6px;gap:6px}
+#avatar-area{padding:4px 0}
+#bottom-bar{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom, 0px) + 12px);width:auto;padding:7px 14px;background:rgba(209,220,215,.76);border:1px solid rgba(214,222,218,.86);border-radius:18px;box-shadow:0 8px 24px rgba(32,38,39,.14);justify-content:space-between;gap:16px}
+.bottom-bar-btn{padding:3px 10px;min-width:58px;gap:2px}
+.bottom-bar-btn-icon{width:30px;height:30px;font-size:14px}
+.bottom-bar-btn-label{font-size:9px;letter-spacing:1px}
+#bottom-bar.drag-locked{pointer-events:none;opacity:.42}
+
+/* Mobile notification strip overrides */
+.popup{width:88%;max-width:420px;min-height:152px;max-height:178px;border-radius:18px;background:rgba(252,249,244,.94);backdrop-filter:blur(5px);overflow:visible;display:grid;grid-template-columns:42px minmax(0,1fr) auto;grid-template-rows:auto minmax(58px,auto) auto auto;column-gap:12px;row-gap:0;padding:13px 14px 12px;align-items:start;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.popup::before{height:2px;opacity:.62}
+.popup-header{display:contents;padding:0;font-size:inherit}
+.popup-source{grid-column:1 / 3;grid-row:1;min-width:0;display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:center;color:var(--text-main);letter-spacing:0;font-weight:800}
+.popup-source-icon{width:38px;height:38px;border-radius:11px;background:rgba(238,242,240,.9);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;font-size:17px;filter:saturate(.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.24)}
+.popup-source-text{min-width:0;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:17px;line-height:1.1;color:var(--color-text-main)}
+.popup-timer{grid-column:3;grid-row:1;align-self:center;font-size:12px;color:var(--text-muted);letter-spacing:0;font-weight:650;white-space:nowrap}
+.popup-countdown-bar{grid-column:1 / 4;grid-row:4;height:2px;margin:9px 0 0;border-radius:2px}
+.popup-body{grid-column:1 / 4;grid-row:2;padding:18px 0 0;min-height:0;font-size:20px;line-height:1.5;letter-spacing:0;color:var(--color-text-main);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.popup-hints{grid-column:1 / 4;grid-row:3;position:static;display:flex;justify-content:space-between;align-items:center;padding:0;margin:16px 0 0;border-top:0;font-size:14px;line-height:1.2;letter-spacing:0;opacity:.72;font-weight:650;pointer-events:none;gap:10px}
+.popup-hints > span,.popup-hints .popup-hint{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;background:transparent;padding:0;border-radius:0;box-shadow:none;color:var(--color-text-secondary);white-space:nowrap}
+.popup-hints .hint-icon{flex:0 0 auto;border:0;background:transparent;padding:0;border-radius:0;box-shadow:none;font-size:16px;line-height:1;color:var(--color-text-main)}
+.popup-hints .hint-text{min-width:0;border:0;background:transparent;padding:0;border-radius:0;box-shadow:none;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary)}
+.popup-hints .hint-sep{display:none}
+.popup.training-hint .popup-hints{font-size:14px;opacity:.78}
+.popup.compact-hint .popup-hints{font-size:13px;opacity:.78}
+.popup.compact-hint .popup-hints > span,.popup.compact-hint .popup-hints .popup-hint{padding:0}
+.popup .hold-ring{bottom:7px;right:10px;width:20px;height:20px}
+.popup .rapid-dots{top:auto;right:12px;bottom:26px}
+.popup.side-hint{max-height:68px;min-height:62px;filter:saturate(.72) blur(.35px);pointer-events:none!important;touch-action:none!important;-webkit-user-select:none;user-select:none}
+.popup.side-hint.depth-1{opacity:.18}.popup.side-hint.depth-2{opacity:.10}.popup.side-hint.depth-3{opacity:.06}
+.popup.side-hint .popup-source-text{font-size:14px}
+.popup.side-hint .popup-body{max-height:20px;-webkit-line-clamp:1;font-size:13px;padding-bottom:0}
+.popup.side-hint .popup-hints{display:none}
+.popup.side-hint .popup-countdown-bar{display:none}
+.popup.ghost-notification{opacity:.22;filter:saturate(.65) blur(.4px);pointer-events:none;transform-origin:center}
+.tutorial-demo-card.notification-demo{width:91vw;max-width:440px;min-height:176px;border-radius:18px;display:grid;grid-template-columns:42px minmax(0,1fr) auto;grid-template-rows:auto auto auto auto;column-gap:12px;row-gap:4px;padding:12px 13px 14px;background:rgba(252,249,244,.94);overflow:visible}
+.tutorial-demo-card.notification-demo .tutorial-demo-header{display:contents;padding:0}
+.tutorial-demo-card.notification-demo .tutorial-demo-source{grid-column:1 / 3;grid-row:1;display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:center;color:var(--text-main);font-weight:800;letter-spacing:0;font-size:17px}
+.tutorial-demo-card.notification-demo .tutorial-demo-source-icon{width:38px;height:38px;border-radius:11px;background:rgba(238,242,240,.9);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center}
+.tutorial-demo-card.notification-demo .tutorial-demo-body{grid-column:2 / 4;grid-row:2;padding:0 0 6px;font-size:15px;line-height:1.35;color:var(--color-text-main)}
+.tutorial-action-cue{grid-column:1 / 4;grid-row:3;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;padding:10px 12px 4px;color:var(--color-text-secondary);pointer-events:none}
+.tutorial-action-icon{width:44px;height:44px;border-radius:50%;border:1px solid var(--color-border);background:rgba(238,242,240,.58);display:flex;align-items:center;justify-content:center;color:var(--color-structure)}
+.tutorial-action-icon svg{width:28px;height:28px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tutorial-action-text{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--text-muted)}
+.tutorial-demo-card.notification-demo .tutorial-demo-hints{position:static;grid-column:1 / 4;grid-row:4;align-self:end;justify-self:center;padding:0;margin:0;border:0;font-size:11px;font-weight:600;opacity:.5;transform:none}
+.gesture-trace{position:absolute;width:34px;height:34px;border-radius:50%;background:rgba(32,38,39,.18);border:1px solid rgba(32,38,39,.18);left:50%;top:50%;z-index:20;pointer-events:none}
+.gesture-trace.left{animation:demoLeft 2.2s infinite}.gesture-trace.right{animation:demoRight 2.2s infinite}.gesture-trace.up{animation:demoUp 2.2s infinite}.gesture-trace.down{animation:demoDown 2.2s infinite}.gesture-trace.hold{animation:demoHold 2.2s infinite}.gesture-trace.tap{animation:demoTap 1.6s infinite}
+@keyframes demoLeft{0%,20%{transform:translate(20px,-4px) scale(1)}70%{transform:translate(-86px,-4px) scale(.92);opacity:.85}100%{opacity:0}}
+@keyframes demoRight{0%,20%{transform:translate(-20px,-4px) scale(1)}70%{transform:translate(86px,-4px) scale(.92);opacity:.85}100%{opacity:0}}
+@keyframes demoUp{0%,20%{transform:translate(-10px,28px) scale(1)}70%{transform:translate(-10px,-72px) scale(.86);opacity:.85}100%{opacity:0}}
+@keyframes demoDown{0%,20%{transform:translate(-10px,-22px) scale(1)}70%{transform:translate(-10px,62px) scale(1.02);opacity:.85}100%{opacity:0}}
+@keyframes demoHold{0%,15%{transform:translate(-10px,-4px) scale(1);box-shadow:0 0 0 0 rgba(0,191,198,.2)}65%{transform:translate(-10px,-4px) scale(.88);box-shadow:0 0 0 20px rgba(0,191,198,.02)}100%{opacity:0}}
+@keyframes demoTap{0%,100%{transform:translate(-10px,-4px) scale(1);opacity:.2}18%,42%,66%{transform:translate(-10px,-4px) scale(.72);opacity:1}26%,50%,74%{transform:translate(-10px,-4px) scale(1.05);opacity:.45}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen">
+  <div class="intro-glitch">SYS_CHECK :: USER_STATUS :: ABNORMAL</div>
+  <div class="intro-title">帮我活一下</div>
+  <div class="intro-subtitle">检测到用户今日无法自主运行<br>需要外部协助维持正常运转</div>
+  <button class="intro-btn" id="btn-start">帮 TA 活一下</button>
+  <div class="intro-ver">LIFE SUPPORT SYSTEM v1.0</div>
+</div>
+
+<!-- TUTORIAL (kept brief - interactive demos) -->
+<div id="screen-tutorial" class="screen hidden"><div id="tutorial-content"></div></div>
+
+<!-- LOADING -->
+<div id="screen-loading" class="screen hidden">
+  <div class="loading-title">正在加载今日运行环境</div>
+  <ul class="loading-list" id="loading-list">
+    <li>表情管理模块</li><li>社交回复模块</li><li>工作人格模块</li><li>家庭应答模块</li><li>情绪压缩包</li><li>假装正常系统</li>
+  </ul>
+  <div class="loading-done" id="loading-done">加载完成</div>
+  <div class="loading-tag" id="loading-tag">请保持 TA 看起来正常</div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen hidden">
+  <div id="fake-statusbar">
+    <span class="time" id="status-time">08:30</span>
+    <span class="icons"><span class="signal">SIG LOW</span><span class="battery"><span class="battery-inner" id="battery-icon" style="width:60%"></span></span></span>
+  </div>
+  <div id="game-header"><span class="title">帮我活一下</span><span class="phase-tag" id="phase-tag"></span></div>
+  <div id="stats-area">
+    <div class="stat-card" data-stat="battery">
+      <div class="stat-card-header"><span class="stat-card-icon">⚡</span><span class="stat-card-name">生命电量</span><span class="stat-card-val" id="val-battery">70/100</span></div>
+      <div class="stat-card-bar-wrap"><div class="stat-card-bar-fill" id="bar-battery" style="width:70%"></div></div>
+      <span class="stat-card-warn" id="warn-battery">!</span>
+    </div>
+    <div class="stat-card" data-stat="emotion">
+      <div class="stat-card-header"><span class="stat-card-icon">♡</span><span class="stat-card-name">情绪稳定</span><span class="stat-card-val" id="val-emotion">65/100</span></div>
+      <div class="stat-card-bar-wrap"><div class="stat-card-bar-fill" id="bar-emotion" style="width:65%"></div></div>
+      <span class="stat-card-warn" id="warn-emotion">!</span>
+    </div>
+    <div class="stat-card" data-stat="persona">
+      <div class="stat-card-header"><span class="stat-card-icon">◈</span><span class="stat-card-name">人设完整</span><span class="stat-card-val" id="val-persona">75/100</span></div>
+      <div class="stat-card-bar-wrap"><div class="stat-card-bar-fill" id="bar-persona" style="width:75%"></div></div>
+      <span class="stat-card-warn" id="warn-persona">!</span>
+    </div>
+    <div class="stat-card" data-stat="progress">
+      <div class="stat-card-header"><span class="stat-card-icon">▣</span><span class="stat-card-name">生活进度</span><span class="stat-card-val" id="val-progress">30/100</span></div>
+      <div class="stat-card-bar-wrap"><div class="stat-card-bar-fill" id="bar-progress" style="width:30%"></div></div>
+      <span class="stat-card-warn" id="warn-progress">!</span>
+    </div>
+  </div>
+  <div id="avatar-area"><div id="avatar-wrap"><span id="avatar-emoji">😶</span></div><span id="avatar-status">今日人格加载中</span></div>
+  <div id="popup-layer">
+    <div id="empty-hint"></div>
+    <div id="pressure-indicator"></div>
+  </div>
+  <div id="phase-transition">
+    <div class="phase-trans-phase" id="phase-trans-phase"></div>
+    <div class="phase-trans-name" id="phase-trans-name"></div>
+    <div class="phase-trans-desc" id="phase-trans-desc"></div>
+    <button class="phase-trans-btn" id="phase-trans-btn">继续活下去</button>
+  </div>
+  <div id="crisis-overlay"></div>
+  <!-- Bottom Action Bar -->
+  <div id="bottom-bar">
+    <button class="bottom-bar-btn" id="btn-tasks">
+      <span class="bottom-bar-btn-icon" style="position:relative">☰</span>
+      <span class="bottom-bar-btn-label">任务</span>
+    </button>
+    <button class="bottom-bar-btn" id="btn-emergency">
+      <span class="bottom-bar-btn-icon" style="position:relative">⚠<span class="badge" id="emergency-badge" style="display:none">0</span></span>
+      <span class="bottom-bar-btn-label">紧急处理</span>
+    </button>
+    <button class="bottom-bar-btn" id="btn-clear">
+      <span class="bottom-bar-btn-icon">✕</span>
+      <span class="bottom-bar-btn-label">清空</span><span style="font-size:9px;color:var(--text-muted)" id="clear-count">(0)</span>
+    </button>
+  </div>
+  <!-- Emergency Drawer Backdrop -->
+  <div id="drawer-backdrop"></div>
+  <!-- Emergency Drawer -->
+  <div id="emergency-drawer">
+    <div id="emergency-drawer-header">
+      <div><div id="emergency-drawer-title">紧急处理</div><div id="emergency-drawer-subtitle">最危险的未处理通知</div></div>
+      <button id="emergency-drawer-close">✕</button>
+    </div>
+    <div id="emergency-drawer-list"></div>
+  </div>
+</div>
+
+<!-- SETTLEMENT -->
+<div id="screen-settlement" class="screen hidden">
+  <div class="settle-header"><div class="settle-title" id="settle-title">今日存活报告</div><div class="settle-rating" id="settle-rating">B</div></div>
+  <div class="settle-card" id="settle-card"></div>
+  <div class="settle-title-name" id="settle-title-name"></div>
+  <div class="settle-comment" id="settle-comment"></div>
+  <button class="settle-restart" id="btn-restart">再 活 一 次</button>
+  <div class="settle-footnote" id="settle-footnote"></div>
+</div>
+
+<script>
+// ==================== EVENTS DATABASE ====================
+const EVENTS = {
+  phase1:[
+    {id:'p1_1',type:'alarm',source:'闹钟',icon:'⏰',text:'第 5 个闹钟正在疯狂响起。TA 还没有睁眼。',timeout:10,actions:[
+      {label:'连续点击关闭',gesture:'rapid_click',clicks:5,hint:'连点关闭',effects:{battery:-5,emotion:-3,persona:0,progress:8}},
+      {label:'上滑稍后',gesture:'swipe_up',hint:'上滑稍后',effects:{battery:3,emotion:0,persona:0,progress:-8}},
+    ],timeoutEffects:{battery:0,emotion:-5,persona:0,progress:-15,msg:'又睡过去了...'}},
+    {id:'p1_2',type:'boss',source:'老板',icon:'💼',text:'老板：早，今天的会议材料准备好了吗？',timeout:12,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-3,persona:8,progress:5}},
+      {label:'右滑认真',gesture:'swipe_right',hint:'认真 →',effects:{battery:-8,emotion:-5,persona:10,progress:15}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:-12,progress:-10}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-18,progress:0,msg:'老板的耐心在减少...'}},
+    {id:'p1_3',type:'mom',source:'妈妈',icon:'👩',text:'妈妈：起床了吗？记得吃早饭。',timeout:10,actions:[
+      {label:'点击回复',gesture:'click',hint:'点击回复',effects:{battery:0,emotion:-3,persona:10,progress:5}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:3,persona:-8,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-5,persona:-5,progress:0,msg:'妈妈又发了一条...'}},
+    {id:'p1_4',type:'system',source:'系统',icon:'📱',text:'手机电量 18%，昨晚又忘记充电了。',timeout:8,actions:[
+      {label:'点击充电',gesture:'click',hint:'点击充电',effects:{battery:10,emotion:0,persona:0,progress:5}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:-5,emotion:2,persona:0,progress:0}},
+    ],timeoutEffects:{battery:-8,emotion:0,persona:0,progress:0,msg:'手机自动关机了。'}},
+    {id:'p1_5',type:'friend',source:'朋友',icon:'💬',text:'朋友：早啊！周末出去玩吗？',timeout:10,actions:[
+      {label:'左滑表情包',gesture:'swipe_left',hint:'← 表情包',effects:{battery:0,emotion:-3,persona:8,progress:0}},
+      {label:'右滑答应',gesture:'swipe_right',hint:'答应 →',effects:{battery:-3,emotion:-5,persona:12,progress:3}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:-10,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-8,progress:0,msg:'朋友觉得你有点冷淡。'}},
+    {id:'p1_6',type:'social',source:'朋友圈',icon:'📱',text:'有人发了晨跑打卡。TA 看了一眼自己还没叠的被子。',timeout:8,actions:[
+      {label:'左滑点赞',gesture:'swipe_left',hint:'← 点赞',effects:{battery:0,emotion:-5,persona:5,progress:0}},
+      {label:'右滑关掉',gesture:'swipe_right',hint:'关掉 →',effects:{battery:0,emotion:5,persona:0,progress:0}},
+      {label:'上滑刷走',gesture:'swipe_up',hint:'↑ 刷走',effects:{battery:0,emotion:-3,persona:0,progress:-3}},
+    ],timeoutEffects:{battery:0,emotion:-8,persona:0,progress:0,msg:'越看越焦虑...'}},
+    {id:'p1_7',type:'delivery',source:'外卖',icon:'🛵',text:'早餐外卖到了，骑手在楼下等。',timeout:10,actions:[
+      {label:'点击下楼',gesture:'click',hint:'点击下楼',effects:{battery:-8,emotion:0,persona:0,progress:8}},
+      {label:'上滑放门口',gesture:'swipe_up',hint:'↑ 放门口',effects:{battery:2,emotion:0,persona:-3,progress:3}},
+    ],timeoutEffects:{battery:0,emotion:-3,persona:0,progress:-8,msg:'外卖凉了。'}},
+  ],
+  phase2:[
+    {id:'p2_1',type:'boss',source:'老板',icon:'💼',text:'老板：那个方案今天下班前能给我吗？',timeout:9,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-5,persona:8,progress:3}},
+      {label:'右滑认真',gesture:'swipe_right',hint:'认真 →',effects:{battery:-10,emotion:-8,persona:12,progress:18}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:-15,progress:-12}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-20,progress:0,msg:'老板又催了一次。'}},
+    {id:'p2_2',type:'mom',source:'妈妈',icon:'👩',text:'妈妈来电：你最近是不是又熬夜了？声音有点担心。',timeout:8,actions:[
+      {label:'点击接听',gesture:'click',hint:'点击接听',effects:{battery:0,emotion:-8,persona:12,progress:0}},
+      {label:'上滑挂断',gesture:'swipe_up',hint:'↑ 挂断',effects:{battery:0,emotion:5,persona:-15,progress:0}},
+      {label:'长按发语音',gesture:'longpress',duration:2,hint:'长按语音',effects:{battery:0,emotion:-5,persona:15,progress:3}},
+    ],timeoutEffects:{battery:0,emotion:-8,persona:-10,progress:0,msg:'妈妈更担心了。'}},
+    {id:'p2_3',type:'delivery',source:'外卖',icon:'🛵',text:'午饭外卖到了，骑手说放楼下了。',timeout:7,actions:[
+      {label:'点击下楼',gesture:'click',hint:'点击下楼',effects:{battery:-6,emotion:0,persona:0,progress:8}},
+      {label:'上滑放门口',gesture:'swipe_up',hint:'↑ 放门口',effects:{battery:0,emotion:2,persona:-3,progress:2}},
+    ],timeoutEffects:{battery:0,emotion:-3,persona:0,progress:-5,msg:'饭被别人拿走了。'}},
+    {id:'p2_4',type:'social',source:'群消息',icon:'💬',text:'工作群突然 99+ 条消息，疯狂讨论一个你完全不想参与的话题。',timeout:8,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-5,persona:10,progress:0}},
+      {label:'右滑静音',gesture:'swipe_right',hint:'静音 →',effects:{battery:0,emotion:10,persona:-5,progress:0}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:-10,progress:-5}},
+    ],timeoutEffects:{battery:0,emotion:-8,persona:-8,progress:0,msg:'有人@了你。'}},
+    {id:'p2_5',type:'friend',source:'同事',icon:'👔',text:'同事私聊：你今天看起来脸色不太好，没事吧？',timeout:9,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-5,persona:10,progress:0}},
+      {label:'右滑坦诚',gesture:'swipe_right',hint:'坦诚 →',effects:{battery:0,emotion:8,persona:-5,progress:0}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:3,persona:-12,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-10,progress:0,msg:'同事觉得你不好相处。'}},
+    {id:'p2_6',type:'system',source:'待办',icon:'📋',text:'今日待办：3 项任务已过期，5 项即将到期。',timeout:7,actions:[
+      {label:'左滑做一个',gesture:'swipe_left',hint:'← 做一个',effects:{battery:-8,emotion:-8,persona:5,progress:15}},
+      {label:'右滑延期',gesture:'swipe_right',hint:'延期 →',effects:{battery:0,emotion:5,persona:-5,progress:-10}},
+    ],timeoutEffects:{battery:0,emotion:-5,persona:0,progress:-15,msg:'任务越积越多。'}},
+    {id:'p2_7',type:'boss',source:'同事',icon:'👔',text:'同事在群里@你：这个问题你能帮忙看一下吗？',timeout:8,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-3,persona:5,progress:3}},
+      {label:'右滑帮忙',gesture:'swipe_right',hint:'帮忙 →',effects:{battery:-5,emotion:-8,persona:15,progress:10}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:3,persona:-12,progress:-5}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-15,progress:0,msg:'群里沉默了，有点尴尬。'}},
+    {id:'p2_8',type:'system',source:'系统',icon:'💳',text:'信用卡还款提醒：本月账单已出。',timeout:9,actions:[
+      {label:'点击还款',gesture:'click',hint:'点击还款',effects:{battery:0,emotion:-8,persona:5,progress:10}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:0,progress:-5}},
+    ],timeoutEffects:{battery:0,emotion:-3,persona:0,progress:0,msg:'又忘记了。'}},
+  ],
+  phase3:[
+    {id:'p3_1',type:'friend',source:'朋友',icon:'💬',text:'朋友：你最近是不是不想理我？好久没见你了。',timeout:7,actions:[
+      {label:'左滑表情包',gesture:'swipe_left',hint:'← 表情包',effects:{battery:0,emotion:-5,persona:8,progress:0}},
+      {label:'右滑解释',gesture:'swipe_right',hint:'解释 →',effects:{battery:0,emotion:-8,persona:12,progress:3}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:-18,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-5,persona:-15,progress:0,msg:'朋友有点受伤。'}},
+    {id:'p3_2',type:'emotion',source:'情绪',icon:'⚠',text:'TA 突然觉得自己什么都做不好。一股巨大的自我怀疑涌上来。',timeout:6,actions:[
+      {label:'长按保持正常',gesture:'longpress',duration:3,hint:'长按稳住',effects:{battery:0,emotion:-15,persona:20,progress:0}},
+      {label:'点击释放',gesture:'click',hint:'点击释放',effects:{battery:0,emotion:15,persona:-20,progress:0}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:-10,persona:0,progress:-5}},
+    ],timeoutEffects:{battery:0,emotion:-25,persona:-15,progress:0,msg:'情绪彻底崩了。'}},
+    {id:'p3_3',type:'social',source:'朋友圈',icon:'📱',text:'刷到大学同学升职、旅行、恋爱、买房，一切看起来都很好。',timeout:8,actions:[
+      {label:'左滑点赞',gesture:'swipe_left',hint:'← 点赞',effects:{battery:0,emotion:-8,persona:5,progress:0}},
+      {label:'右滑关掉',gesture:'swipe_right',hint:'关掉 →',effects:{battery:0,emotion:5,persona:0,progress:0}},
+      {label:'长按不比较',gesture:'longpress',duration:2,hint:'长按不比较',effects:{battery:-3,emotion:10,persona:0,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-15,persona:0,progress:0,msg:'越看越难受。'}},
+    {id:'p3_4',type:'boss',source:'老板',icon:'💼',text:'老板：刚才那个方案有几处要改，重新做一下。',timeout:7,actions:[
+      {label:'左滑答应',gesture:'swipe_left',hint:'← 答应',effects:{battery:-5,emotion:-10,persona:10,progress:12}},
+      {label:'右滑询问',gesture:'swipe_right',hint:'询问 →',effects:{battery:-3,emotion:-5,persona:15,progress:8}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:5,persona:-18,progress:-15}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-20,progress:-10,msg:'老板很不满。'}},
+    {id:'p3_5',type:'mom',source:'妈妈',icon:'👩',text:'妈妈转发了一篇养生文章：《熬夜的十大危害》。',timeout:8,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-3,persona:10,progress:0}},
+      {label:'右滑认真',gesture:'swipe_right',hint:'认真 →',effects:{battery:0,emotion:-5,persona:15,progress:3}},
+    ],timeoutEffects:{battery:0,emotion:-3,persona:-5,progress:0,msg:'妈妈又发了一条。'}},
+    {id:'p3_6',type:'system',source:'系统',icon:'🔔',text:'下午 3 点，困意来袭。TA 的眼皮在打架。',timeout:7,actions:[
+      {label:'点击洗脸',gesture:'click',hint:'点击洗脸',effects:{battery:-3,emotion:8,persona:0,progress:3}},
+      {label:'上滑硬撑',gesture:'swipe_up',hint:'↑ 硬撑',effects:{battery:-8,emotion:-5,persona:5,progress:5}},
+    ],timeoutEffects:{battery:-5,emotion:-5,persona:0,progress:-10,msg:'差点睡着了。'}},
+    {id:'p3_7',type:'emotion',source:'情绪',icon:'⚠',text:'突然不想回复任何人。所有消息都变成了负担。',timeout:6,actions:[
+      {label:'左滑回复',gesture:'swipe_left',hint:'← 回复',effects:{battery:-5,emotion:-10,persona:15,progress:8}},
+      {label:'右滑静音',gesture:'swipe_right',hint:'静音 →',effects:{battery:0,emotion:8,persona:-8,progress:-5}},
+      {label:'长按深呼吸',gesture:'longpress',duration:2,hint:'长按深呼吸',effects:{battery:0,emotion:12,persona:0,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-15,persona:-10,progress:0,msg:'被消息淹没的感觉。'}},
+    {id:'p3_8',type:'social',source:'群消息',icon:'💬',text:'朋友群在约晚上聚餐，@了你问来不来。',timeout:9,actions:[
+      {label:'左滑答应',gesture:'swipe_left',hint:'← 答应',effects:{battery:-8,emotion:-10,persona:12,progress:5}},
+      {label:'右滑拒绝',gesture:'swipe_right',hint:'拒绝 →',effects:{battery:0,emotion:5,persona:-5,progress:0}},
+      {label:'上滑忽略',gesture:'swipe_up',hint:'↑ 忽略',effects:{battery:0,emotion:3,persona:-12,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:0,persona:-10,progress:0,msg:'朋友又@了一次。'}},
+  ],
+  phase4:[
+    {id:'p4_1',type:'emotion',source:'情绪',icon:'⚠',text:'TA 快要绷不住了。一切都在往下坠。',timeout:5,actions:[
+      {label:'长按保持正常',gesture:'longpress',duration:3,hint:'长按稳住',effects:{battery:0,emotion:-15,persona:20,progress:0}},
+      {label:'点击释放',gesture:'click',hint:'点击释放',effects:{battery:0,emotion:18,persona:-25,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-30,persona:-20,progress:0,msg:'彻底崩溃了。'}},
+    {id:'p4_2',type:'alarm',source:'闹钟',icon:'⏰',text:'系统提醒：距离明天开始还剩 6 小时。该设置明天的闹钟了。',timeout:7,actions:[
+      {label:'连点设闹钟',gesture:'rapid_click',clicks:4,hint:'连点设闹钟',effects:{battery:0,emotion:-5,persona:5,progress:8}},
+      {label:'上滑放弃',gesture:'swipe_up',hint:'↑ 放弃',effects:{battery:0,emotion:5,persona:0,progress:-8}},
+    ],timeoutEffects:{battery:0,emotion:-3,persona:0,progress:-10,msg:'明天起不来了。'}},
+    {id:'p4_3',type:'social',source:'朋友圈',icon:'📱',text:'深夜。TA 突然很想发："算了，没人在乎。"',timeout:6,actions:[
+      {label:'左滑发送',gesture:'swipe_left',hint:'← 发送',effects:{battery:0,emotion:20,persona:-30,progress:0}},
+      {label:'右滑删除',gesture:'swipe_right',hint:'删除 →',effects:{battery:0,emotion:-15,persona:15,progress:0}},
+      {label:'上滑伪装',gesture:'swipe_up',hint:'↑ 伪装',effects:{battery:0,emotion:-20,persona:20,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-15,persona:-10,progress:0,msg:'话堵在心里。'}},
+    {id:'p4_4',type:'system',source:'系统',icon:'📋',text:'今日未完成待办：7 项。它们不会消失，只会被推到明天。',timeout:6,actions:[
+      {label:'左滑做一件',gesture:'swipe_left',hint:'← 做一件',effects:{battery:-10,emotion:-10,persona:5,progress:15}},
+      {label:'右滑推明天',gesture:'swipe_right',hint:'推明天 →',effects:{battery:0,emotion:5,persona:-8,progress:-12}},
+    ],timeoutEffects:{battery:0,emotion:-8,persona:0,progress:-15,msg:'明天会更难。'}},
+    {id:'p4_5',type:'mom',source:'妈妈',icon:'👩',text:'妈妈：这么晚还不睡？明天还要上班呢。',timeout:7,actions:[
+      {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-3,persona:8,progress:0}},
+      {label:'右滑不回',gesture:'swipe_right',hint:'不回 →',effects:{battery:0,emotion:3,persona:-8,progress:0}},
+    ],timeoutEffects:{battery:0,emotion:-5,persona:-5,progress:0,msg:'妈妈又发了一条消息。'}},
+    {id:'p4_6',type:'emotion',source:'情绪',icon:'⚠',text:'假装正常太久了。TA 已经快忘了真实的自己是什么样子。',timeout:5,actions:[
+      {label:'长按继续假装',gesture:'longpress',duration:3,hint:'长按假装',effects:{battery:0,emotion:-15,persona:20,progress:5}},
+      {label:'点击不装了',gesture:'click',hint:'点击释放',effects:{battery:0,emotion:20,persona:-25,progress:-5}},
+    ],timeoutEffects:{battery:0,emotion:-20,persona:-15,progress:0,msg:'假面碎了。'}},
+    {id:'p4_7',type:'system',source:'系统',icon:'📱',text:'系统通知：你已连续使用 14 小时未休息。',timeout:6,actions:[
+      {label:'左滑继续',gesture:'swipe_left',hint:'← 继续',effects:{battery:-12,emotion:-10,persona:8,progress:5}},
+      {label:'右滑休息',gesture:'swipe_right',hint:'休息 →',effects:{battery:10,emotion:8,persona:-5,progress:-8}},
+    ],timeoutEffects:{battery:-10,emotion:-5,persona:0,progress:0,msg:'身体在抗议。'}},
+    {id:'p4_8',type:'social',source:'深夜',icon:'🌙',text:'凌晨 1 点。TA 看着天花板，想着今天又什么都没做好。',timeout:6,actions:[
+      {label:'左滑刷手机',gesture:'swipe_left',hint:'← 刷手机',effects:{battery:-5,emotion:-5,persona:0,progress:-5}},
+      {label:'右滑睡觉',gesture:'swipe_right',hint:'睡觉 →',effects:{battery:8,emotion:5,persona:0,progress:3}},
+      {label:'长按安静待着',gesture:'longpress',duration:2,hint:'长按安静',effects:{battery:0,emotion:8,persona:0,progress:0}},
+    ],timeoutEffects:{battery:-5,emotion:-12,persona:0,progress:0,msg:'失眠了。'}},
+  ]
+};
+
+// ==================== RANDOM EVENTS ====================
+const RANDOM_EVENTS = [
+  {id:'re_1',source:'系统',icon:'⚠',text:'你刚才已读没回的消息，被对方发现了。',timeout:5,actions:[
+    {label:'左滑装傻',gesture:'swipe_left',hint:'← 装傻',effects:{battery:0,emotion:-5,persona:-10,progress:0}},
+    {label:'右滑解释',gesture:'swipe_right',hint:'解释 →',effects:{battery:0,emotion:-10,persona:8,progress:0}},
+    {label:'长按假装刚看到',gesture:'longpress',duration:1.5,hint:'长按装刚看到',effects:{battery:0,emotion:-3,persona:5,progress:0}},
+  ],timeoutEffects:{battery:0,emotion:-10,persona:-15,progress:0,msg:'对方更生气了。'}},
+  {id:'re_2',source:'老板',icon:'💼',text:'老板又发了一条：你看到了吗？',timeout:5,actions:[
+    {label:'左滑说在做了',gesture:'swipe_left',hint:'← 说在做了',effects:{battery:0,emotion:-5,persona:5,progress:5}},
+    {label:'右滑立刻回复',gesture:'swipe_right',hint:'立刻回 →',effects:{battery:-5,emotion:-8,persona:12,progress:10}},
+    {label:'上滑继续拖',gesture:'swipe_up',hint:'↑ 继续拖',effects:{battery:0,emotion:3,persona:-18,progress:-10}},
+  ],timeoutEffects:{battery:0,emotion:0,persona:-20,progress:-8,msg:'老板的耐心彻底没了。'}},
+  {id:'re_3',source:'群消息',icon:'💬',text:'群里突然有人 @ 你：这个你来说一下？',timeout:5,actions:[
+    {label:'左滑敷衍',gesture:'swipe_left',hint:'← 敷衍',effects:{battery:0,emotion:-5,persona:8,progress:0}},
+    {label:'右滑认真回答',gesture:'swipe_right',hint:'认真答 →',effects:{battery:-5,emotion:-8,persona:12,progress:5}},
+    {label:'上滑装没看见',gesture:'swipe_up',hint:'↑ 装没看见',effects:{battery:0,emotion:3,persona:-15,progress:-5}},
+  ],timeoutEffects:{battery:0,emotion:-5,persona:-12,progress:0,msg:'群里安静了，有点尴尬。'}},
+  {id:'re_4',source:'系统',icon:'📄',text:'文件未保存，程序好像卡住了。',timeout:4,actions:[
+    {label:'长按保存',gesture:'longpress',duration:2,hint:'长按保存',effects:{battery:-3,emotion:0,persona:5,progress:12}},
+    {label:'连点抢救',gesture:'rapid_click',clicks:3,hint:'连点抢救',effects:{battery:-5,emotion:-5,persona:0,progress:8}},
+    {label:'上滑不管',gesture:'swipe_up',hint:'↑ 不管',effects:{battery:0,emotion:3,persona:0,progress:-20}},
+  ],timeoutEffects:{battery:0,emotion:-5,persona:0,progress:-25,msg:'文件丢了。进度清零。'}},
+  {id:'re_5',source:'妈妈',icon:'👩',text:'家人打来电话，屏幕震动中。',timeout:5,actions:[
+    {label:'点击接听',gesture:'click',hint:'点击接听',effects:{battery:0,emotion:-8,persona:12,progress:0}},
+    {label:'上滑挂断',gesture:'swipe_up',hint:'↑ 挂断',effects:{battery:0,emotion:5,persona:-15,progress:0}},
+    {label:'长按发语音说在忙',gesture:'longpress',duration:2,hint:'长按语音',effects:{battery:0,emotion:-3,persona:8,progress:0}},
+  ],timeoutEffects:{battery:0,emotion:-8,persona:-10,progress:0,msg:'电话断了。家人有点担心。'}},
+  {id:'re_6',source:'外卖',icon:'🛵',text:'骑手在楼下等，电话已经打了两遍。',timeout:5,actions:[
+    {label:'点击下楼',gesture:'click',hint:'点击下楼',effects:{battery:-8,emotion:0,persona:0,progress:8}},
+    {label:'上滑让放门口',gesture:'swipe_up',hint:'↑ 放门口',effects:{battery:0,emotion:2,persona:-3,progress:2}},
+    {label:'下滑拖延',gesture:'swipe_down',hint:'↓ 拖延',effects:{battery:0,emotion:3,persona:-5,progress:-5}},
+  ],timeoutEffects:{battery:0,emotion:-3,persona:-5,progress:-8,msg:'骑手走了，饭凉了。'}},
+  {id:'re_7',source:'自己',icon:'🫥',text:'你突然什么都不想管了。一切看起来都没有意义。',timeout:4,actions:[
+    {label:'长按硬撑',gesture:'longpress',duration:3,hint:'长按硬撑',effects:{battery:0,emotion:-15,persona:15,progress:5}},
+    {label:'点击释放',gesture:'click',hint:'点击释放',effects:{battery:0,emotion:15,persona:-20,progress:0}},
+    {label:'左滑分散注意',gesture:'swipe_left',hint:'← 分散注意',effects:{battery:-3,emotion:-5,persona:5,progress:0}},
+  ],timeoutEffects:{battery:0,emotion:-25,persona:-10,progress:-5,msg:'你彻底掉线了。'}},
+];
+
+const SYSTEM_FAULTS = ['今日人格即将过期','情绪缓存不足','真实表达模块长期未使用','假笑次数过多','社交电量低于安全线','请继续保持正常','TA 还需要你','你已经很久没有说真话了','今日没有变好，但也没有坏掉','请勿在公共场合崩溃'];
+const AVATAR_STATUSES = {normal:['今日人格加载中','系统低功耗运行','社交模块待机中','假装一切正常'],warning:['正在假装没事','还能撑一下','情绪开始不稳','社交电量告急'],danger:['快要装不住了','人快没电了','勉强维持表面正常','即将强制休眠']};
+const STATE_MSGS = ['你刚想喘口气。','手机又亮了。','事情开始变多了。','还有几件事正在路上。','别急，真正麻烦的还没来。','你开始分不清哪些事真的重要。','今天还没过半。','你以为上午已经够乱了。','手机开始乱响。','人设快撑不住了。','社交电量告急。','还有一堆事没完。','假装正常越来越难。','你突然什么都不想管了。','但你知道不会太久。','深吸一口气，继续假装正常。'];
+const EMPTY_HINTS = ['安静了两秒。','你刚想喘口气。','手机暂时没响。','但你知道不会太久。','片刻的宁静。','深吸一口气。'];
+
+// ==================== TUTORIAL DEMOS ====================
+const TUTORIAL_DEMOS = [
+  {source:'老板',icon:'💼',text:'老板：今天会议材料准备好了吗？',actions:[
+    {label:'左滑敷衍',gesture:'swipe_left',effects:{battery:0,emotion:-3,persona:8,progress:5},explain:'敷衍能保住基本盘，但不会推动进度。'},
+    {label:'右滑认真',gesture:'swipe_right',effects:{battery:-8,emotion:-5,persona:10,progress:15},explain:'认真处理稳住局面、推动进度，但消耗精力。'},
+    {label:'上滑忽略',gesture:'swipe_up',effects:{battery:0,emotion:5,persona:-12,progress:-10},explain:'忽略看似轻松，但老板的事不能一直拖。'},
+  ]},
+  {source:'群消息',icon:'💬',text:'工作群突然 99+ 条消息，有人好像提到了你。',actions:[
+    {label:'左滑敷衍',gesture:'swipe_left',effects:{battery:0,emotion:-5,persona:10,progress:0},explain:'发个表情包糊弄过去，人设不会崩。'},
+    {label:'连点快速糊弄',gesture:'rapid_click',clicks:4,effects:{battery:0,emotion:-3,persona:8,progress:0},explain:'快速回几条，不需要认真看完每条。'},
+    {label:'上滑忽略',gesture:'swipe_up',effects:{battery:0,emotion:5,persona:-8,progress:-3},explain:'直接不看也行——但如果真有人@你，之后更尴尬。'},
+  ]},
+  {source:'系统',icon:'📄',text:'文件已 2 小时未保存。',actions:[
+    {label:'长按保存',gesture:'longpress',duration:2,effects:{battery:-3,emotion:0,persona:5,progress:12},explain:'突发风险优先处理。保存是最稳的，代价很小。'},
+    {label:'点击稍后再说',gesture:'click',effects:{battery:0,emotion:3,persona:0,progress:-8},explain:'省了精力，但如果崩了进度全丢。不值得赌。'},
+    {label:'上滑忽略',gesture:'swipe_up',effects:{battery:0,emotion:5,persona:0,progress:-15},explain:'崩盘往往不是因为大事，而是这些小事被无视。'},
+  ]},
+];
+
+// ==================== GAME STATE ====================
+const Game = {
+  stats:{battery:70,emotion:65,persona:75,progress:30},
+  popups:[],popupIdCounter:0,zIndexCounter:100,
+  gameStartTime:0,spawnTimer:null,gameLoopTimer:null,
+  gameTime:0,ended:false,gameDuration:150,
+  paused:false,
+  quietUntil:0,burstUntil:0,lastEmptyHint:0,lastStateMsgTime:0,
+  densityState:'idle',densityStateUntil:0,burstQueue:0,lastSpawnAt:0,
+  guaranteedPressureAt:0,guaranteedPressureUsed:false,pressureBurstRemaining:0,postPressureRecoveryUntil:0,
+  randomEventCooldown:0,randomEventsUsed:new Set(),randomEventsThisBlock:0,
+  // Dynamic pressure system
+  pressureLevel:0, // 0=idle 1=single 2=light_queue 3=stack_pressure 4=burst
+  pressureScore:12, // internal 0-100
+  consecutiveIgnores:0,
+  stateMsgShown:new Set(),
+  tracker:{totalPopups:0,handledPopups:0,timedOutPopups:0,fakeSmileCount:0,ignoreCount:0,honestCount:0,crisisCount:0,longPressSuccess:0,longPressFail:0,swipeAway:0},
+  pressureConfig:{
+    0:{spawnBase:2400,spawnRange:3600,maxCards:0,timeoutMult:1.35},
+    1:{spawnBase:3000,spawnRange:2200,maxCards:1,timeoutMult:1.18},
+    2:{spawnBase:1400,spawnRange:1200,maxCards:3,timeoutMult:1.0},
+    3:{spawnBase:650,spawnRange:600,maxCards:7,timeoutMult:0.82},
+    4:{spawnBase:180,spawnRange:220,maxCards:10,timeoutMult:0.68},
+  },
+  usedEvents:new Set(),
+};
+
+const DENSITY_STATES={
+  idle:{level:0,minDur:2000,maxDur:6000,minCards:0,maxCards:0,spawnBase:2600,spawnRange:3400},
+  single:{level:1,minDur:7000,maxDur:13000,minCards:1,maxCards:1,spawnBase:3000,spawnRange:2000},
+  light_queue:{level:2,minDur:6500,maxDur:12000,minCards:2,maxCards:3,spawnBase:1100,spawnRange:1200},
+  stack_pressure:{level:3,minDur:5000,maxDur:10000,minCards:4,maxCards:7,spawnBase:520,spawnRange:620},
+  burst:{level:4,minDur:3000,maxDur:8000,minCards:5,maxCards:10,spawnBase:160,spawnRange:180}
+};
+const DENSITY_LABELS={idle:'IDLE',single:'',light_queue:'QUEUE',stack_pressure:'HIGH',burst:'BURST'};
+const DENSITY_IDLE_HINTS=['暂时没有新的通知。','你获得了 3 秒钟。','世界安静了一下。','好像没人找你了。','这只是短暂的错觉。','空气安静了 3 秒。'];
+
+function randRange(min,max){return min+Math.random()*(max-min)}
+
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const dom={
+  intro:$('#screen-intro'),tutorial:$('#screen-tutorial'),tutorialContent:$('#tutorial-content'),loading:$('#screen-loading'),game:$('#screen-game'),settlement:$('#screen-settlement'),
+  loadingList:$('#loading-list'),loadingDone:$('#loading-done'),loadingTag:$('#loading-tag'),
+  popupLayer:$('#popup-layer'),emptyHint:$('#empty-hint'),pressureInd:$('#pressure-indicator'),
+  phaseTag:$('#phase-tag'),phaseTransition:$('#phase-transition'),phaseTransPhase:$('#phase-trans-phase'),phaseTransName:$('#phase-trans-name'),phaseTransDesc:$('#phase-trans-desc'),phaseTransBtn:$('#phase-trans-btn'),
+  crisisOverlay:$('#crisis-overlay'),avatarWrap:$('#avatar-wrap'),avatarEmoji:$('#avatar-emoji'),avatarStatus:$('#avatar-status'),
+  statusTime:$('#status-time'),batteryIcon:$('#battery-icon'),
+  settleTitle:$('#settle-title'),settleRating:$('#settle-rating'),settleCard:$('#settle-card'),settleTitleName:$('#settle-title-name'),settleComment:$('#settle-comment'),settleFootnote:$('#settle-footnote'),
+};
+
+// ==================== AUDIO ====================
+const AudioCtx=window.AudioContext||window.webkitAudioContext;let audioCtx=null;
+function initAudio(){if(!audioCtx)audioCtx=new AudioCtx()}
+function beep(f,d,t='square',v=.05){if(!audioCtx)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)}catch(e){}}
+function sfxPopup(){beep(800,.08,'square',.04);beep(1000,.06,'square',.03)}
+function sfxClick(){beep(600,.05,'sine',.03)}
+function sfxTimeout(){beep(100,.4,'sawtooth',.08)}
+function sfxLongPress(){beep(1200,.15,'sine',.05)}
+function sfxPhase(){beep(300,.5,'triangle',.06)}
+function sfxEnd(){beep(400,.8,'triangle',.07)}
+function sfxWarning(){beep(200,.3,'sawtooth',.06)}
+function sfxBurst(){beep(900,.06,'square',.05);beep(600,.04,'square',.04)}
+
+function showScreen(s){$$('.screen').forEach(x=>x.classList.add('hidden'));s.classList.remove('hidden')}
+
+// ==================== TUTORIAL ====================
+const Tutorial={
+  demoIndex:0,demoState:'intro',currentDemo:null,demoAction:null,
+  reset(){this.demoIndex=0;this.demoState='intro';this.currentDemo=null;this.demoAction=null},
+
+  showIntro(){this.reset();dom.tutorialContent.innerHTML=`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+      <div class="tutorial-intro">
+        <div class="tutorial-avatar-wrap"><span class="tutorial-avatar-emoji">😶</span></div>
+        <div class="tutorial-title">帮 活 提 示</div>
+        <div class="tutorial-desc">今天不是要把每件事都处理完美，<br>而是要在生命、情绪、人设、进度崩掉之前<br>撑过今天。</div>
+        <button class="tutorial-btn" id="btn-try-demo">试着练一下</button>
+      </div>
+    </div>`;
+    document.getElementById('btn-try-demo').addEventListener('click',()=>{initAudio();sfxClick();this.startDemo(0)});
+  },
+
+  startDemo(idx){this.demoIndex=idx;this.demoState='playing';this.currentDemo=TUTORIAL_DEMOS[idx];this.demoAction=null;this.renderDemoCard()},
+
+  /* Build hint text from action — describes the gesture, NOT a button */
+  _hintText(a){
+    switch(a.gesture){
+      case'swipe_left':return'← '+a.label;
+      case'swipe_right':return a.label+' →';
+      case'swipe_up':return'↑ '+a.label;
+      case'swipe_down':return'↓ '+a.label;
+      case'click':return'点击'+a.label;
+      case'longpress':return'长按'+a.label;
+      case'rapid_click':return'连点'+a.label;
+      default:return a.label;
+    }
+  },
+
+  renderDemoCard(){
+    const d=this.currentDemo;
+    const hintItems=d.actions.map(a=>this._hintText(a));
+    const hintsHTML=hintItems.map(h=>`<span>${h}</span>`).join('<span class="tutorial-demo-hint-sep"> · </span>');
+    const hasLong=d.actions.some(a=>a.gesture==='longpress');
+    const hasRapid=d.actions.some(a=>a.gesture==='rapid_click');
+    dom.tutorialContent.innerHTML=`
+      <div class="tutorial-step-indicator">示范 ${this.demoIndex+1} / ${TUTORIAL_DEMOS.length}</div>
+      <div class="tutorial-card-stage">
+        <div class="tutorial-demo-card" id="demo-card">
+          <div class="tutorial-demo-header">
+            <span class="tutorial-demo-source"><span class="tutorial-demo-source-icon">${d.icon}</span>${d.source}</span>
+          </div>
+          <div class="tutorial-demo-body">${d.text}</div>
+          <div class="tutorial-demo-hints">${hintsHTML}</div>
+          ${hasLong?'<div class="hold-ring"></div>':''}
+          ${hasRapid?'<div class="rapid-dots"><span></span><span></span><span></span><span></span><span></span></div>':''}
+          <div class="tutorial-swipe-fb left"></div>
+          <div class="tutorial-swipe-fb right"></div>
+          <div class="tutorial-swipe-fb up"></div>
+          <div class="tutorial-swipe-fb down"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:1px;text-align:center;pointer-events:none">← 拖动卡片来操作 →</div>
+      </div>
+      <div class="tutorial-feedback-area" id="tutorial-feedback"></div>
+      <div class="tutorial-nav-area" id="tutorial-nav"></div>`;
+    this.bindDemoEvents();
+  },
+
+  bindDemoEvents(){
+    const d=this.currentDemo;
+    const card=document.getElementById('demo-card');
+    if(!card)return;
+    let tx,ty,ts,lt,rtc=0,ltg=false,origX,origY,hm=false;
+    const SWIPE_THRESH=70;
+    const fbL=card.querySelector('.tutorial-swipe-fb.left');
+    const fbR=card.querySelector('.tutorial-swipe-fb.right');
+    const fbU=card.querySelector('.tutorial-swipe-fb.up');
+    const fbD=card.querySelector('.tutorial-swipe-fb.down');
+    function hideAllFb(){fbL.classList.remove('show','trigger');fbR.classList.remove('show','trigger');fbU.classList.remove('show','trigger');fbD.classList.remove('show','trigger')}
+
+    function onStart(cx,cy){
+      initAudio();tx=cx;ty=cy;ts=Date.now();hm=false;ltg=false;
+      origX=card.offsetLeft;origY=card.offsetTop;
+      // Long press
+      const lp=d.actions.find(a=>a.gesture==='longpress');
+      if(lp){
+        const dur=(lp.duration||3)*1000;
+        const ring=card.querySelector('.hold-ring');
+        if(ring)ring.classList.add('active');
+        const st=Date.now();
+        lt=setInterval(()=>{
+          const pct=Math.min(100,((Date.now()-st)/dur)*100);
+          if(ring)ring.style.background=`conic-gradient(var(--color-neutral-progress) ${pct*3.6}deg, transparent 0)`;
+          if(Date.now()-st>=dur&&!ltg){
+            ltg=true;clearInterval(lt);
+            if(ring){ring.classList.add('done');ring.style.background='var(--color-text-secondary)'}
+            sfxLongPress();Tutorial.resolveDemo(lp);
+          }
+        },50);
+      }
+    }
+
+    function onMove(cx,cy){
+      const dx=cx-tx,dy=cy-ty;
+      if(Math.abs(dx)>3||Math.abs(dy)>3){
+        hm=true;
+        if(lt){clearInterval(lt);lt=null;
+          const ring=card.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}
+      }
+      card.style.transform=`translate(${dx}px, ${dy}px)`;
+      card.classList.add('dragging');
+      hideAllFb();
+      if(Math.abs(dx)>Math.abs(dy)){
+        if(dx<-15){
+          const a=d.actions.find(x=>x.gesture==='swipe_left');
+          if(a){fbL.textContent=a.label;fbL.classList.add('show');if(dx<-SWIPE_THRESH)fbL.classList.add('trigger')}
+        }
+        if(dx>15){
+          const a=d.actions.find(x=>x.gesture==='swipe_right');
+          if(a){fbR.textContent=a.label;fbR.classList.add('show');if(dx>SWIPE_THRESH)fbR.classList.add('trigger')}
+        }
+      }else{
+        if(dy<-15){
+          const a=d.actions.find(x=>x.gesture==='swipe_up');
+          if(a){fbU.textContent=a.label;fbU.classList.add('show');if(dy<-SWIPE_THRESH)fbU.classList.add('trigger')}
+        }
+        if(dy>15){
+          const a=d.actions.find(x=>x.gesture==='swipe_down');
+          if(a){fbD.textContent=a.label;fbD.classList.add('show');if(dy>SWIPE_THRESH)fbD.classList.add('trigger')}
+        }
+      }
+    }
+
+    function onEnd(cx,cy){
+      card.classList.remove('dragging');
+      card.style.transform='translate(0,0)';
+      hideAllFb();
+      if(lt){clearInterval(lt);lt=null;
+        const ring=card.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}
+      if(ltg)return;
+      const dx=(cx||tx)-tx,dy=(cy||ty)-ty,dt=Date.now()-ts;
+
+      // Swipe gestures
+      if(Math.abs(dx)>Math.abs(dy)){
+        if(dx<-SWIPE_THRESH){const a=d.actions.find(x=>x.gesture==='swipe_left');if(a){sfxClick();Tutorial.resolveDemo(a);return}}
+        if(dx>SWIPE_THRESH){const a=d.actions.find(x=>x.gesture==='swipe_right');if(a){sfxClick();Tutorial.resolveDemo(a);return}}
+      }else{
+        if(dy<-SWIPE_THRESH){const a=d.actions.find(x=>x.gesture==='swipe_up');if(a){sfxClick();Tutorial.resolveDemo(a);return}}
+        if(dy>SWIPE_THRESH){const a=d.actions.find(x=>x.gesture==='swipe_down');if(a){sfxClick();Tutorial.resolveDemo(a);return}}
+      }
+
+      // Click / Rapid click (small or no movement)
+      if(!hm||(Math.abs(dx)<15&&Math.abs(dy)<15)){
+        if(dt<500){
+          const rc=d.actions.find(a=>a.gesture==='rapid_click');
+          if(rc){
+            rtc++;
+            const dots=card.querySelector('.rapid-dots');
+            if(dots){dots.classList.add('active');dots.querySelectorAll('span').forEach((s,i)=>{if(i<rtc)s.classList.add('filled')})}
+            sfxClick();
+            if(rtc>=rc.clicks)Tutorial.resolveDemo(rc);
+            return;
+          }
+          const ca=d.actions.find(a=>a.gesture==='click');
+          if(ca){sfxClick();Tutorial.resolveDemo(ca);return}
+        }
+      }
+      rtc=0;
+    }
+
+    // Touch
+    card.addEventListener('touchstart',e=>{e.preventDefault();onStart(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+    card.addEventListener('touchmove',e=>{e.preventDefault();onMove(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+    card.addEventListener('touchend',e=>{const t=e.changedTouches[0];onEnd(t?t.clientX:tx,t?t.clientY:ty)});
+
+    // Mouse
+    card.addEventListener('mousedown',e=>{onStart(e.clientX,e.clientY)});
+    const onMouseMove=e=>{if(tx!==undefined)onMove(e.clientX,e.clientY)};
+    const onMouseUp=e=>{onEnd(e.clientX,e.clientY);document.removeEventListener('mousemove',onMouseMove);document.removeEventListener('mouseup',onMouseUp);tx=undefined};
+    card.addEventListener('mousedown',e=>{document.addEventListener('mousemove',onMouseMove);document.addEventListener('mouseup',onMouseUp)});
+  },
+
+  resolveDemo(action){
+    this.demoState='result';this.demoAction=action;
+    const eff=action.effects,parts=[];
+    if(eff.battery)parts.push(`生命电量 ${eff.battery>0?'+':''}${eff.battery}`);
+    if(eff.emotion)parts.push(`情绪稳定 ${eff.emotion>0?'+':''}${eff.emotion}`);
+    if(eff.persona)parts.push(`人设完整 ${eff.persona>0?'+':''}${eff.persona}`);
+    if(eff.progress)parts.push(`生活进度 ${eff.progress>0?'+':''}${eff.progress}`);
+    const last=this.demoIndex>=TUTORIAL_DEMOS.length-1;
+
+    // Show result in feedback area
+    document.getElementById('tutorial-feedback').innerHTML=`
+      <div class="tutorial-result">
+        <div class="tutorial-result-choice">你选择了：<span>${action.label}</span></div>
+        <div class="tutorial-result-effects">${parts.map(p=>`<span class="tutorial-result-eff ${p.includes('+')?'pos':'neg'}">${p}</span>`).join('')}</div>
+        <div class="tutorial-result-explain">${action.explain}</div>
+        <div class="tutorial-result-btns">
+          <button class="tutorial-retry-btn" id="btn-retry">再试一次</button>
+          ${last
+            ?`<button class="tutorial-next-btn tutorial-start-btn" id="btn-next">开始游戏</button>`
+            :`<button class="tutorial-next-btn" id="btn-next">下一个示范</button>`}
+        </div>
+      </div>`;
+    document.getElementById('btn-retry').addEventListener('click',()=>{initAudio();sfxClick();this.startDemo(this.demoIndex)});
+    document.getElementById('btn-next').addEventListener('click',()=>{initAudio();sfxClick();if(last)this.showFinal();else this.startDemo(this.demoIndex+1)});
+  },
+
+  showFinal(){
+    this.demoState='done';
+    dom.tutorialContent.innerHTML=`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+        <div class="tutorial-intro" style="padding-top:0">
+          <div class="tutorial-avatar-wrap"><span class="tutorial-avatar-emoji">😶</span></div>
+          <div class="tutorial-final">
+            <div class="tutorial-final-q">还要再试一次吗？</div>
+            <div class="tutorial-final-btns">
+              <button class="tutorial-btn tutorial-retry-btn" id="btn-replay" style="margin-top:0">再练一轮</button>
+              <button class="tutorial-btn" id="btn-real-start" style="margin-top:0">开始帮我活一下</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('btn-replay').addEventListener('click',()=>{initAudio();sfxClick();this.startDemo(0)});
+    document.getElementById('btn-real-start').addEventListener('click',()=>{initAudio();sfxClick();startLoading()});
+  },
+};
+
+// ==================== STATS ====================
+function clamp(v){return Math.max(0,Math.min(100,v))}
+function updateStats(effects){const s=Game.stats,old={...s};s.battery=clamp(s.battery+(effects.battery||0));s.emotion=clamp(s.emotion+(effects.emotion||0));s.persona=clamp(s.persona+(effects.persona||0));s.progress=clamp(s.progress+(effects.progress||0));updateStatUI();updateAvatarStatus();for(const[k,id]of[['battery','bar-battery'],['emotion','bar-emotion'],['persona','bar-persona'],['progress','bar-progress']]){if(s[k]!==old[k]){const bar=document.getElementById(id);bar.classList.add('flash');setTimeout(()=>bar.classList.remove('flash'),200)}}if(['battery','emotion','persona','progress'].filter(k=>s[k]<10).length>=2&&!Game.ended)endGame(false)}
+function updateStatUI(){const s=Game.stats,bars={battery:{el:$('#bar-battery'),val:$('#val-battery'),warn:$('#warn-battery')},emotion:{el:$('#bar-emotion'),val:$('#val-emotion'),warn:$('#warn-emotion')},persona:{el:$('#bar-persona'),val:$('#val-persona'),warn:$('#warn-persona')},progress:{el:$('#bar-progress'),val:$('#val-progress'),warn:$('#warn-progress')}};for(const[k,v]of Object.entries(s)){if(bars[k]){bars[k].el.style.width=v+'%';const c=v<25?'var(--color-danger)':v<50?'var(--color-danger-soft)':'var(--color-neutral-progress)';bars[k].el.style.background=c;bars[k].val.textContent=v+'/100';bars[k].warn.style.display=v<25?'inline':'none'}}const bp=Math.min(100,s.battery);dom.batteryIcon.style.width=bp+'%';dom.batteryIcon.style.background=bp<25?'var(--color-danger)':bp<50?'var(--color-danger-soft)':'var(--color-neutral-progress)';const crit=Object.values(s).some(v=>v<25);dom.crisisOverlay.classList.toggle('active',crit)}
+function updateAvatarStatus(){const s=Game.stats,minVal=Math.min(...Object.values(s)),wrap=dom.avatarWrap,emoji=dom.avatarEmoji,status=dom.avatarStatus;let level,statuses;if(minVal<15){level='danger';statuses=AVATAR_STATUSES.danger}else if(minVal<30){level='warning';statuses=AVATAR_STATUSES.warning}else{level='normal';statuses=AVATAR_STATUSES.normal}const picks=level==='danger'?['😰','😨','😳']:level==='warning'?['😟','😵','😬']:['😶','😐','🙂'];emoji.textContent=picks[Math.floor(Date.now()/3000)%picks.length];status.textContent=statuses[Math.floor(Math.random()*statuses.length)];wrap.classList.remove('danger','warning');status.classList.remove('danger-text','warning-text');if(level==='danger'){wrap.classList.add('danger');status.classList.add('danger-text')}else if(level==='warning'){wrap.classList.add('warning');status.classList.add('warning-text')}};const domEmergency={drawer:$('#emergency-drawer'),backdrop:$('#drawer-backdrop'),list:$('#emergency-drawer-list'),badge:$('#emergency-badge'),close:$('#emergency-drawer-close'),clearBtn:$('#btn-clear'),clearCount:$('#clear-count'),tasksBtn:$('#btn-tasks'),emergencyBtn:$('#btn-emergency')};
+
+// ==================== POPUP SYSTEM (pure gesture, no buttons) ====================
+function updateCardLayers(){const n=Game.popups.length;if(n===0)return;const layer=dom.popupLayer,w=layer.clientWidth,h=layer.clientHeight;const sorted=[...Game.popups].sort((a,b)=>(parseInt(a.el.style.zIndex)||0)-(parseInt(b.el.style.zIndex)||0));const visibleLimit=n>=8?10:n>=4?7:n;sorted.forEach((p,i)=>{const depth=n-1-i,isFront=depth===0;p.el.classList.remove('stack-deep','stack-mid','stack-front');p.el.style.display=depth<visibleLimit?'block':'none';if(depth>=visibleLimit)return;let cls=depth===0?'stack-front':depth<=2?'stack-mid':'stack-deep';p.el.classList.add(cls);const rot=Number(p.el.dataset.rotation||0);const centerLeft=Math.max(8,(w-Math.min(340,w*.86))/2);const baseTop=Math.max(18,h*.22);let x=centerLeft,y=baseTop,sc=1;if(n===1){y=Math.max(26,h*.28)}else if(n<=3){x=centerLeft-depth*(10+Math.random()*2);y=baseTop+depth*18;sc=1-depth*.045}else if(n<=7){x=centerLeft+(depth%2?-1:1)*(12+depth*7);y=Math.max(10,baseTop-depth*12+depth*22);sc=1-depth*.038}else{x=centerLeft+(depth%3-1)*(18+depth*3);y=Math.max(4,baseTop-depth*9+depth*17);sc=1-depth*.032}if(!p.el.classList.contains('dragging')&&!p.el.classList.contains('resolved')){p.el.style.left=Math.max(-24,Math.min(w-80,x))+'px';p.el.style.top=Math.max(0,Math.min(h-82,y))+'px';p.el.style.transform=`rotate(${rot}deg) scale(${Math.max(.74,sc)})`;p.el.style.zIndex=100+i}})}
+
+function spawnPopup(eventData,isRandom=false){if(Game.ended||Game.paused)return;const layer=dom.popupLayer,id=++Game.popupIdCounter;const fromBurst=Game.densityState==='burst'||isRandom;const el=document.createElement('div');el.className='popup'+(isRandom?' random-event':'');el.dataset.id=id;const rot=(Math.random()-0.5)*(fromBurst?9:5);el.dataset.rotation=rot;const startX=fromBurst?(Math.random()<.5?-260:layer.clientWidth+80):(layer.clientWidth*.07+Math.random()*40);const startY=fromBurst?randRange(0,Math.max(40,layer.clientHeight*.55)):randRange(20,Math.max(40,layer.clientHeight*.42));el.style.left=startX+'px';el.style.top=startY+'px';el.style.transform=`rotate(${rot}deg)`;el.style.zIndex=++Game.zIndexCounter;const cfg=Game.pressureConfig[Game.pressureLevel]||Game.pressureConfig[1];const timeoutSec=Math.max(4,Math.round(eventData.timeout*(isRandom?0.65:cfg.timeoutMult)));el.dataset.timeout=timeoutSec;el.dataset.createdAt=Date.now();if(fromBurst){el.classList.add('burst-in');sfxBurst()}
+
+// Build hint bar — directional ghost text, NOT buttons
+const hints=[];let hasLongPress=false,hasRapid=false;
+eventData.actions.forEach(a=>{if(a.gesture==='swipe_left')hints.push('← '+(a.hint||a.label||'左滑'));else if(a.gesture==='swipe_right')hints.push((a.hint||a.label||'右滑')+' →');else if(a.gesture==='swipe_up')hints.push('↑ '+(a.hint||a.label||'上滑'));else if(a.gesture==='swipe_down')hints.push('↓ '+(a.hint||a.label||'下滑'));else if(a.gesture==='click')hints.push('点击'+(a.hint||a.label||''));else if(a.gesture==='longpress'){hasLongPress=true;hints.push('长按'+(a.hint||a.label||''))}else if(a.gesture==='rapid_click'){hasRapid=true;hints.push('连点'+(a.hint||a.label||''))}});
+
+el.innerHTML=`
+  <div class="popup-header"><span class="popup-source"><span class="popup-source-icon">${eventData.icon}</span>${eventData.source}</span><span class="popup-timer">${(()=>{const mm=Math.floor(timeoutSec/60),ss=Math.floor(timeoutSec%60);return mm>0?String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'):'00:'+String(ss).padStart(2,'0')})()}</span></div>
+  <div class="popup-countdown-bar"><div class="popup-countdown-fill" style="width:100%"></div></div>
+  <div class="popup-body">${eventData.text}</div>
+  <div class="popup-hints">${hints.map(h=>`<span>${h}</span>`).join('<span class="hint-sep"> · </span>')}</div>
+  <div class="hold-ring"></div>
+  <div class="rapid-dots">${hasRapid?`<span></span><span></span><span></span><span></span><span></span>`:''}</div>
+  <div class="popup-swipe-fb left"></div>
+  <div class="popup-swipe-fb right"></div>
+  <div class="popup-swipe-fb up"></div>
+  <div class="popup-swipe-fb down"></div>`;
+layer.appendChild(el);
+const popupObj={id,el,eventData,timeoutSec,resolved:false,isRandom};Game.popups.push(popupObj);Game.tracker.totalPopups++;
+bindPopupEvents(popupObj);sfxPopup();updateCardLayers();updateEmptyHint();updatePressureInd();return popupObj}
+
+function bindPopupEvents(popup){const{el,eventData}=popup;let tx,ty,ts,pX,pY,hm=false,lt=null,ltg=false,rtc=0,origX,origY;const SWIPE_THRESH=80,SWIPE_THRESH_V=70;
+function getFb(dir){return el.querySelector(`.popup-swipe-fb.${dir}`)}
+function showFb(dir,txt){const fb=getFb(dir);if(fb){fb.textContent=txt;fb.classList.add('show')}}
+function hideFb(dir){const fb=getFb(dir);if(fb)fb.classList.remove('show','trigger')}
+function hideAllFb(){['left','right','up','down'].forEach(d=>hideFb(d))}
+
+el.addEventListener('touchstart',e=>{initAudio();if(Game.ended)return;const t=e.touches[0];tx=t.clientX;ty=t.clientY;ts=Date.now();hm=false;ltg=false;origX=el.offsetLeft;origY=el.offsetTop;pX=origX;pY=origY;el.style.zIndex=++Game.zIndexCounter;updateCardLayers();
+  const lp=eventData.actions.find(a=>a.gesture==='longpress');if(lp){const dur=(lp.duration||3)*1000,ring=el.querySelector('.hold-ring');let st=Date.now();ring.classList.add('active');lt=setInterval(()=>{const pct=Math.min(100,((Date.now()-st)/dur)*100);ring.style.background=`conic-gradient(var(--color-neutral-progress) ${pct*3.6}deg, transparent 0)`;if(Date.now()-st>=dur&&!ltg){ltg=true;clearInterval(lt);ring.classList.add('done');ring.style.background='var(--color-text-secondary)';sfxLongPress();Game.tracker.longPressSuccess++;resolvePopup(popup,lp)}},50)}},{passive:false});
+
+el.addEventListener('touchmove',e=>{if(Game.ended)return;const t=e.touches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(Math.abs(dx)>5||Math.abs(dy)>5){hm=true;if(lt){clearInterval(lt);lt=null;const ring=el.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}}
+  const nl=origX+dx,nt=origY+dy;el.style.left=Math.max(-40,Math.min(dom.popupLayer.clientWidth-40,nl))+'px';el.style.top=Math.max(-20,Math.min(dom.popupLayer.clientHeight-40,nt))+'px';el.classList.add('dragging');pX=nl;pY=nt;
+  hideAllFb();
+  if(Math.abs(dx)>Math.abs(dy)){if(dx<-30){const a=eventData.actions.find(x=>x.gesture==='swipe_left');if(a){showFb('left',a.hint||'敷衍');if(dx<-SWIPE_THRESH)getFb('left').classList.add('trigger')}}if(dx>30){const a=eventData.actions.find(x=>x.gesture==='swipe_right');if(a){showFb('right',a.hint||'认真处理');if(dx>SWIPE_THRESH)getFb('right').classList.add('trigger')}}}else{if(dy<-30){const a=eventData.actions.find(x=>x.gesture==='swipe_up');if(a){showFb('up',a.hint||'忽略');if(dy<-SWIPE_THRESH_V)getFb('up').classList.add('trigger')}}if(dy>30){const a=eventData.actions.find(x=>x.gesture==='swipe_down');if(a){showFb('down',a.hint||'拖延');if(dy>SWIPE_THRESH_V)getFb('down').classList.add('trigger')}}}},{passive:false});
+
+el.addEventListener('touchend',e=>{if(Game.ended)return;el.classList.remove('dragging');hideAllFb();if(lt){clearInterval(lt);lt=null;const ring=el.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}if(ltg)return;
+  const dx=(e.changedTouches[0]?.clientX||tx)-tx,dy=(e.changedTouches[0]?.clientY||ty)-ty,dt=Date.now()-ts;
+  // Swipe off screen edge
+  const eR=el.getBoundingClientRect(),lR=dom.popupLayer.getBoundingClientRect();
+  if(eR.right<lR.left+15||eR.left>lR.right-15||eR.top>lR.bottom-15){Game.tracker.swipeAway++;Game.tracker.ignoreCount++;el.classList.add('timed-out');setTimeout(()=>removePopup(popup),350);showFeedback(el,'已划走...');updateStats({battery:0,emotion:3,persona:-5,progress:-3});return}
+  // Check if exceeded threshold
+  if(Math.abs(dx)>Math.abs(dy)){if(dx<-SWIPE_THRESH){const a=eventData.actions.find(x=>x.gesture==='swipe_left');if(a){sfxClick();resolvePopup(popup,a);return}}if(dx>SWIPE_THRESH){const a=eventData.actions.find(x=>x.gesture==='swipe_right');if(a){sfxClick();resolvePopup(popup,a);return}}}else{if(dy<-SWIPE_THRESH_V){const a=eventData.actions.find(x=>x.gesture==='swipe_up');if(a){sfxClick();resolvePopup(popup,a);return}}if(dy>SWIPE_THRESH_V){const a=eventData.actions.find(x=>x.gesture==='swipe_down');if(a){sfxClick();resolvePopup(popup,a);return}}}
+  // Snap back
+  const r=el.dataset.rotation||0;el.style.transition='left 0.3s cubic-bezier(.25,.8,.25,1.2), top 0.3s cubic-bezier(.25,.8,.25,1.2)';el.style.left=origX+'px';el.style.top=origY+'px';el.style.transform=`rotate(${r}deg)`;setTimeout(()=>{el.style.transition='transform .25s cubic-bezier(.25,.8,.25,1.2),opacity .3s,box-shadow .3s,border-color .3s,background .3s'},300);
+  // Click / rapid click
+  if(!hm||(Math.abs(dx)<15&&Math.abs(dy)<15)){if(dt<500){const rc=eventData.actions.find(a=>a.gesture==='rapid_click');if(rc){rtc++;const dots=el.querySelector('.rapid-dots');if(dots){dots.classList.add('active');dots.querySelectorAll('span').forEach((s,i)=>{if(i<rtc)s.classList.add('filled')})}sfxClick();el.style.animation='none';el.offsetHeight;el.style.animation='cardBurst .15s ease-out';if(rtc>=rc.clicks)resolvePopup(popup,rc);return}const ca=eventData.actions.find(a=>a.gesture==='click');if(ca){sfxClick();resolvePopup(popup,ca);return}}}else if(hm){el.classList.add('wrong-action');Game.pressureScore=Math.min(100,(Game.pressureScore||0)+3);showFeedback(el,['不是这样处理。','这条消息没被解决。','处理方式不对，事情卡住了。'][Math.floor(Math.random()*3)]);beep(150,.15,'sawtooth',.04);setTimeout(()=>el.classList.remove('wrong-action'),400)}
+});
+
+// Mouse
+el.addEventListener('mousedown',e=>{initAudio();if(Game.ended)return;tx=e.clientX;ty=e.clientY;ts=Date.now();hm=false;ltg=false;origX=el.offsetLeft;origY=el.offsetTop;el.style.zIndex=++Game.zIndexCounter;updateCardLayers();
+  const lp=eventData.actions.find(a=>a.gesture==='longpress');if(lp){const dur=(lp.duration||3)*1000,ring=el.querySelector('.hold-ring');let st=Date.now();ring.classList.add('active');lt=setInterval(()=>{const pct=Math.min(100,((Date.now()-st)/dur)*100);ring.style.background=`conic-gradient(var(--color-neutral-progress) ${pct*3.6}deg, transparent 0)`;if(Date.now()-st>=dur&&!ltg){ltg=true;clearInterval(lt);ring.classList.add('done');ring.style.background='var(--color-text-secondary)';sfxLongPress();Game.tracker.longPressSuccess++;resolvePopup(popup,lp)}},50)}});
+el.addEventListener('mousemove',e=>{if(Game.ended||tx===undefined)return;const dx=e.clientX-tx,dy=e.clientY-ty;if(Math.abs(dx)>3||Math.abs(dy)>3){hm=true;if(lt){clearInterval(lt);lt=null;const ring=el.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}}el.style.left=Math.max(-40,Math.min(dom.popupLayer.clientWidth-40,origX+dx))+'px';el.style.top=Math.max(-20,Math.min(dom.popupLayer.clientHeight-40,origY+dy))+'px';el.classList.add('dragging');
+  hideAllFb();if(Math.abs(dx)>Math.abs(dy)){if(dx<-30){const a=eventData.actions.find(x=>x.gesture==='swipe_left');if(a){showFb('left',a.hint||'敷衍');if(dx<-SWIPE_THRESH)getFb('left').classList.add('trigger')}}if(dx>30){const a=eventData.actions.find(x=>x.gesture==='swipe_right');if(a){showFb('right',a.hint||'认真处理');if(dx>SWIPE_THRESH)getFb('right').classList.add('trigger')}}}else{if(dy<-30){const a=eventData.actions.find(x=>x.gesture==='swipe_up');if(a){showFb('up',a.hint||'忽略');if(dy<-SWIPE_THRESH_V)getFb('up').classList.add('trigger')}}if(dy>30){const a=eventData.actions.find(x=>x.gesture==='swipe_down');if(a){showFb('down',a.hint||'拖延');if(dy>SWIPE_THRESH_V)getFb('down').classList.add('trigger')}}}});
+el.addEventListener('mouseup',e=>{if(Game.ended)return;el.classList.remove('dragging');hideAllFb();if(lt){clearInterval(lt);lt=null;const ring=el.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}if(ltg)return;const dx=e.clientX-tx,dy=e.clientY-ty,dt=Date.now()-ts;
+  if(Math.abs(dx)>Math.abs(dy)){if(dx<-SWIPE_THRESH){const a=eventData.actions.find(x=>x.gesture==='swipe_left');if(a){sfxClick();resolvePopup(popup,a);return}}if(dx>SWIPE_THRESH){const a=eventData.actions.find(x=>x.gesture==='swipe_right');if(a){sfxClick();resolvePopup(popup,a);return}}}else{if(dy<-SWIPE_THRESH_V){const a=eventData.actions.find(x=>x.gesture==='swipe_up');if(a){sfxClick();resolvePopup(popup,a);return}}if(dy>SWIPE_THRESH_V){const a=eventData.actions.find(x=>x.gesture==='swipe_down');if(a){sfxClick();resolvePopup(popup,a);return}}}
+  const r=el.dataset.rotation||0;el.style.transition='left 0.3s cubic-bezier(.25,.8,.25,1.2), top 0.3s cubic-bezier(.25,.8,.25,1.2)';el.style.left=origX+'px';el.style.top=origY+'px';el.style.transform=`rotate(${r}deg)`;setTimeout(()=>{el.style.transition='transform .25s cubic-bezier(.25,.8,.25,1.2),opacity .3s,box-shadow .3s,border-color .3s,background .3s'},300);
+  if(!hm||(Math.abs(dx)<15&&Math.abs(dy)<15)){if(dt<500){const rc=eventData.actions.find(a=>a.gesture==='rapid_click');if(rc){rtc++;const dots=el.querySelector('.rapid-dots');if(dots){dots.classList.add('active');dots.querySelectorAll('span').forEach((s,i)=>{if(i<rtc)s.classList.add('filled')})}sfxClick();el.style.animation='none';el.offsetHeight;el.style.animation='cardBurst .15s ease-out';if(rtc>=rc.clicks)resolvePopup(popup,rc);return}const ca=eventData.actions.find(a=>a.gesture==='click');if(ca){sfxClick();resolvePopup(popup,ca);return}}}});
+}
+
+function resolvePopup(popup,action){if(!Game.popups.includes(popup)||popup.resolved)return;popup.resolved=true;if(navigator.vibrate)navigator.vibrate(15);updateStats(action.effects);showFeedback(popup.el,action.label);Game.tracker.handledPopups++;
+  // Track behavior for pressure system
+  const isIgnore=action.label.includes('忽略')||action.label.includes('装没')||action.label.includes('挂断')||action.label.includes('继续拖')||action.gesture==='swipe_up';
+  const isFake=action.label.includes('敷衍')||action.label.includes('表情包')||action.label.includes('糊弄')||action.label.includes('装傻');
+  const isHonest=action.label.includes('坦诚')||action.label.includes('解释')||action.label.includes('认真')||action.label.includes('帮忙');
+  if(isIgnore){Game.tracker.ignoreCount++;Game.consecutiveIgnores++;Game.pressureScore=Math.min(100,Game.pressureScore+15)}
+  else if(isFake){Game.tracker.fakeSmileCount++;Game.consecutiveIgnores=0;Game.pressureScore=Math.max(0,Game.pressureScore-5)}
+  else if(isHonest){Game.tracker.honestCount++;Game.consecutiveIgnores=0;Game.pressureScore=Math.max(0,Game.pressureScore-10)}
+  else{Game.consecutiveIgnores=0;Game.pressureScore=Math.max(0,Game.pressureScore-8)}
+  if(action.gesture==='longpress')Game.tracker.longPressSuccess++;
+  popup.el.style.transform='';popup.el.classList.add('resolved');setTimeout(()=>removePopup(popup),250)}
+function timeoutPopup(popup){if(!Game.popups.includes(popup)||popup.resolved)return;popup.resolved=true;updateStats(popup.eventData.timeoutEffects||{battery:0,emotion:-10,persona:-10,progress:-5});Game.tracker.timedOutPopups++;Game.consecutiveIgnores++;Game.pressureScore=Math.min(100,Game.pressureScore+20);popup.el.classList.add('timed-out');sfxTimeout();showFeedback(popup.el,(popup.eventData.timeoutEffects||{}).msg||'超时了...');setTimeout(()=>removePopup(popup),350)}
+function removePopup(popup){const idx=Game.popups.indexOf(popup);if(idx>=0)Game.popups.splice(idx,1);if(popup.el&&popup.el.parentNode)popup.el.remove();updateCardLayers();updateEmptyHint();updatePressureInd();// Brief breathing room after clearing
+  if(Game.popups.length===0){Game.quietUntil=Date.now()+1800}}
+function showFeedback(el,text){const fb=document.createElement('div');fb.style.cssText='position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;color:#F2F2F2;background:rgba(0,0,0,.88);padding:6px 16px;border-radius:16px;pointer-events:none;z-index:999;letter-spacing:1px;animation:toastFade 1.4s forwards;white-space:nowrap';fb.textContent=text;el.appendChild(fb);setTimeout(()=>fb.remove(),1400)}
+
+// ==================== EMPTY HINT & PRESSURE ====================
+function updateEmptyHint(){const n=Game.popups.length;const now=Date.now();if(n===0&&now-Game.lastEmptyHint>3500){Game.lastEmptyHint=now;dom.emptyHint.textContent=EMPTY_HINTS[Math.floor(Math.random()*EMPTY_HINTS.length)];dom.emptyHint.classList.add('show');setTimeout(()=>dom.emptyHint.classList.remove('show'),2000)}if(n>0)dom.emptyHint.classList.remove('show')}
+function updatePressureInd(){const n=Game.popups.length;const ind=dom.pressureInd;ind.classList.remove('show','high');if(n>=4){ind.textContent='高压';ind.classList.add('show','high')}else if(n>=3){ind.textContent='积压';ind.classList.add('show')}}
+
+// ==================== COUNTDOWN ====================
+function updateCountdowns(){if(Game.paused)return;const now=Date.now();Game.popups.forEach(p=>{const elapsed=(now-parseInt(p.el.dataset.createdAt))/1000,remaining=Math.max(0,p.timeoutSec-elapsed),timerEl=p.el.querySelector('.popup-timer'),fillEl=p.el.querySelector('.popup-countdown-fill');if(timerEl){const rm=Math.ceil(remaining),rmm=Math.floor(rm/60),rss=Math.floor(rm%60);timerEl.textContent=rmm>0?String(rmm).padStart(2,'0')+':'+String(rss).padStart(2,'0'):'00:'+String(rss).padStart(2,'0');timerEl.classList.toggle('urgent',remaining<4)}if(fillEl){fillEl.style.width=(remaining/p.timeoutSec)*100+'%';fillEl.classList.toggle('urgent',remaining<4)}p.el.classList.toggle('urgent',remaining<3);if(remaining<=0)timeoutPopup(p)})}
+
+// ==================== PRESSURE & SPAWN SYSTEM ====================
+function updatePressure(){
+  if(Game.ended||Game.paused)return;
+  const n=Game.popups.length;
+  const minStat=Math.min(...Object.values(Game.stats));
+  let target=1;
+  // Card count drives pressure (higher thresholds)
+  if(n>=5)target=4;else if(n>=4)target=3;else if(n>=3)target=2;else if(n===0)target=0;else target=1;
+  // Low stats amp pressure (higher thresholds)
+  if(minStat<15)target=Math.max(target,3);
+  else if(minStat<28)target=Math.max(target,2);
+  // Player neglect
+  if(Game.consecutiveIgnores>=3)target=Math.max(target,3);
+  else if(Game.consecutiveIgnores>=2)target=Math.max(target,2);
+  // Burst window overrides
+  if(Date.now()<Game.burstUntil)target=Math.max(target,4);
+  // Smooth transition
+  Game.pressureLevel=Math.round((Game.pressureLevel+target)/2);
+  if(Game.pressureLevel<target)Game.pressureLevel=target; // can jump up fast, drift down slow
+  // Update display
+  const labels=['喘口气','','','高压...','!!'];
+  dom.phaseTag.textContent=Game.pressureLevel>=3?labels[Game.pressureLevel]:'';
+  const pind=dom.pressureInd;
+  pind.classList.remove('show','high');
+  if(Game.pressureLevel>=4){pind.textContent='失控';pind.classList.add('show','high')}
+  else if(Game.pressureLevel>=3){pind.textContent='高压';pind.classList.add('show','high')}
+  else if(Game.pressureLevel>=2){pind.textContent='积压';pind.classList.add('show')}
+  // Shaking at burst
+  dom.game.classList.toggle('shaking',Game.pressureLevel>=4);
+  // State message every ~30-35s
+  const elapsed=(Date.now()-Game.gameStartTime)/1000;
+  const block=Math.floor(elapsed/32);
+  if(!Game.stateMsgShown.has(block)&&elapsed>12&&elapsed-Game.lastStateMsgTime>28){
+    Game.stateMsgShown.add(block);Game.lastStateMsgTime=elapsed;
+    spawnStateMsg();
+  }
+}
+function spawnStateMsg(){
+  const t=document.createElement('div');
+  t.className='system-toast';
+  t.textContent=STATE_MSGS[Math.floor(Math.random()*STATE_MSGS.length)];
+  dom.popupLayer.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+// Time-based event pool selection (smooth, not stages)
+function getEventPhase(){const t=(Date.now()-Game.gameStartTime)/1000;if(t<35)return 1;if(t<75)return 2;if(t<120)return 3;return 4;}
+
+function getCardLimit(){
+  const cfg=Game.pressureConfig[Game.pressureLevel];
+  return cfg?cfg.maxCards:2;
+}
+
+function scheduleNextSpawn(){
+  if(Game.ended||Game.paused)return;
+  const cfg=Game.pressureConfig[Game.pressureLevel];
+  const limit=cfg?cfg.maxCards:2;
+  const delay=(cfg?cfg.spawnBase:1200)+Math.random()*(cfg?cfg.spawnRange:800);
+  Game.spawnTimer=setTimeout(()=>{
+    if(Game.ended||Game.paused){scheduleNextSpawn();return;}
+    if(Date.now()<Game.quietUntil){scheduleNextSpawn();return;}
+    if(Game.popups.length<limit)trySpawnEvent();
+    checkRandomEvent();
+    scheduleNextSpawn();
+  },delay);
+}
+
+function trySpawnEvent(){
+  if(Game.ended||Game.paused||Game.popups.length>=Game.pressureConfig[Game.pressureLevel].maxCards)return;
+  const pk='phase'+getEventPhase(),pool=EVENTS[pk];
+  let avail=pool.filter(e=>!Game.usedEvents.has(e.id));
+  if(avail.length===0){Game.usedEvents.clear();avail=pool}
+  const ev=avail[Math.floor(Math.random()*avail.length)];
+  Game.usedEvents.add(ev.id);
+  // Apply pressure-based timeout
+  const cfg=Game.pressureConfig[Game.pressureLevel];
+  const timeoutMult=cfg?cfg.timeoutMult:1.0;
+  const origTimeout=ev.timeout;
+  ev.timeout=Math.round(origTimeout*timeoutMult);
+  const popup=spawnPopup(ev);
+  ev.timeout=origTimeout; // restore
+  // Occasionally spawn system toast at high pressure
+  if(Game.pressureLevel>=3&&Math.random()<.4)spawnSystemToast();
+}
+
+function spawnSystemToast(){
+  const t=document.createElement('div');t.className='system-toast';
+  t.textContent=SYSTEM_FAULTS[Math.floor(Math.random()*SYSTEM_FAULTS.length)];
+  dom.popupLayer.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+
+// ==================== RANDOM EVENTS ====================
+function checkRandomEvent(){
+  if(Game.ended||Game.paused)return;
+  const now=Date.now();
+  if(now<Game.randomEventCooldown)return;
+  const elapsed=(Date.now()-Game.gameStartTime)/1000;
+  const block=Math.floor(elapsed/25);
+  // Guarantee: at least 1 random per ~25s block after first 15s
+  const needGuarantee=Game.randomEventsThisBlock<1&&elapsed>15;
+  let chance=0;
+  if(needGuarantee)chance=0.9;
+  else if(Game.pressureLevel>=4)chance=0.45;
+  else if(Game.pressureLevel>=3)chance=0.28;
+  else if(Game.pressureLevel>=2)chance=0.12;
+  else chance=0.05;
+  // Player neglect boosts chance
+  if(Game.consecutiveIgnores>=2)chance+=0.2;
+  if(Game.consecutiveIgnores>=1)chance+=0.1;
+  // Low stats
+  const minStat=Math.min(...Object.values(Game.stats));
+  if(minStat<25)chance+=0.2;
+  if(Math.random()<chance)spawnRandomEvent();
+  // Reset block counter
+  const currentBlock=Math.floor((Date.now()-Game.gameStartTime)/1000/25);
+  if(currentBlock!==Math.floor((Date.now()-5000-Game.gameStartTime)/1000/25)){
+    // block changed, handled by pressure update
+  }
+}
+
+function spawnRandomEvent(){
+  const avail=RANDOM_EVENTS.filter(e=>!Game.randomEventsUsed.has(e.id));
+  if(avail.length===0)Game.randomEventsUsed.clear();
+  const pool=avail.length>0?avail:RANDOM_EVENTS;
+  const ev=pool[Math.floor(Math.random()*pool.length)];
+  Game.randomEventsUsed.add(ev.id);
+  Game.randomEventsThisBlock++;
+  Game.randomEventCooldown=Date.now()+5000+Math.random()*5000;
+  Game.burstUntil=Date.now()+3000+Math.random()*3000;
+  // Random events always jump to front with shorter timeout
+  const popup=spawnPopup(ev,true);
+  if(popup&&popup.el){
+    popup.el.style.zIndex=++Game.zIndexCounter;
+    updateCardLayers();
+    // Brief screen flash
+    dom.crisisOverlay.classList.add('active');
+    setTimeout(()=>{if(Game.pressureLevel<3)dom.crisisOverlay.classList.remove('active')},400);
+  }
+}
+
+// Rhythm overrides: five density states, replacing the older always-stacking pressure loop.
+function weightedPick(items){let total=items.reduce((s,x)=>s+x[1],0),r=Math.random()*total;for(const item of items){r-=item[1];if(r<=0)return item[0]}return items[items.length-1][0]}
+function chooseDensityState(){const p=Game.pressureScore,n=Game.popups.length;if(n===0&&Math.random()<.42)return'idle';if(p<=20)return weightedPick([['idle',42],['single',48],['light_queue',10]]);if(p<=45)return weightedPick([['idle',12],['single',42],['light_queue',34],['burst',12]]);if(p<=70)return weightedPick([['single',10],['light_queue',42],['stack_pressure',30],['burst',18]]);if(p<=90)return weightedPick([['idle',5],['light_queue',14],['stack_pressure',48],['burst',33]]);return weightedPick([['idle',8],['stack_pressure',40],['burst',52]])}
+function setDensityState(state){const cfg=DENSITY_STATES[state]||DENSITY_STATES.single;Game.densityState=state;Game.pressureLevel=cfg.level;Game.densityStateUntil=Date.now()+randRange(cfg.minDur,cfg.maxDur);if(state==='idle'){Game.quietUntil=Game.densityStateUntil;if(Game.popups.length===0)showIdleHint()}else if(state==='burst'){Game.burstUntil=Game.densityStateUntil;Game.burstQueue=Math.floor(randRange(5,11))}}
+function updateDensityState(){const now=Date.now(),n=Game.popups.length;if(Game.densityState==='idle'&&n>0)setDensityState(n>=4?'stack_pressure':n>=2?'light_queue':'single');if(now<Game.densityStateUntil)return;if(Game.densityState==='burst'&&n>=4&&Math.random()<.7){setDensityState('stack_pressure');return}if(Game.pressureScore>=91&&Math.random()<.22){setDensityState('idle');Game.densityStateUntil=now+randRange(1000,2200);return}setDensityState(chooseDensityState())}
+function showIdleHint(){dom.emptyHint.textContent=DENSITY_IDLE_HINTS[Math.floor(Math.random()*DENSITY_IDLE_HINTS.length)];dom.emptyHint.classList.add('show');setTimeout(()=>dom.emptyHint.classList.remove('show'),2200)}
+function updatePressure(){if(Game.ended||Game.paused)return;const n=Game.popups.length,minStat=Math.min(...Object.values(Game.stats)),elapsed=(Date.now()-Game.gameStartTime)/1000;const unresolved=n*9,timePressure=Math.min(24,elapsed*.18),statPressure=(100-minStat)*.34,neglectPressure=Game.consecutiveIgnores*10+Game.tracker.timedOutPopups*7;Game.pressureScore=clamp(Math.round(Game.pressureScore*.72+(unresolved+timePressure+statPressure+neglectPressure)*.28));if(n===0&&Game.consecutiveIgnores===0)Game.pressureScore=Math.max(0,Game.pressureScore-1.2);if(Date.now()<Game.burstUntil)Game.pressureScore=Math.max(Game.pressureScore,72);updateDensityState();Game.pressureLevel=DENSITY_STATES[Game.densityState].level;dom.phaseTag.textContent=DENSITY_LABELS[Game.densityState]||'';const pind=dom.pressureInd;pind.classList.remove('show','high');if(Game.densityState==='burst'){pind.textContent='+'+Math.max(Game.burstQueue,n)+' 新通知';pind.classList.add('show','high')}else if(n>=8){pind.textContent='待处理 '+n;pind.classList.add('show','high')}else if(n>=4){pind.textContent='高压';pind.classList.add('show','high')}else if(n>=2){pind.textContent='积压';pind.classList.add('show')}dom.game.classList.toggle('shaking',Game.densityState==='burst'||Game.pressureScore>=88);const block=Math.floor(elapsed/32);if(!Game.stateMsgShown.has(block)&&elapsed>12&&elapsed-Game.lastStateMsgTime>28){Game.stateMsgShown.add(block);Game.lastStateMsgTime=elapsed;spawnStateMsg()}}
+function getCardLimit(){const cfg=DENSITY_STATES[Game.densityState]||DENSITY_STATES.single;return cfg.maxCards}
+function scheduleNextSpawn(){if(Game.ended||Game.paused)return;const cfg=DENSITY_STATES[Game.densityState]||DENSITY_STATES.single;const delay=cfg.spawnBase+Math.random()*cfg.spawnRange;Game.spawnTimer=setTimeout(()=>{if(Game.ended||Game.paused){scheduleNextSpawn();return}updateDensityState();if(Date.now()<Game.quietUntil||Game.densityState==='idle'){checkRandomEvent();scheduleNextSpawn();return}const limit=getCardLimit();if(Game.densityState==='burst'){const burstCount=Math.min(Game.burstQueue,1+Math.floor(Math.random()*3),Math.max(0,limit-Game.popups.length));for(let i=0;i<burstCount;i++){trySpawnEvent(true,true);Game.burstQueue--}if(Game.burstQueue<=0)setDensityState(Math.random()<.25?'idle':'stack_pressure')}else if(Game.popups.length<limit){trySpawnEvent()}checkRandomEvent();scheduleNextSpawn()},delay)}
+function trySpawnEvent(force=false,isBurst=false){if(Game.ended||Game.paused)return;if(!force&&Game.popups.length>=getCardLimit())return;const pk='phase'+getEventPhase(),pool=EVENTS[pk];let avail=pool.filter(e=>!Game.usedEvents.has(e.id));if(avail.length===0){Game.usedEvents.clear();avail=pool}const ev=avail[Math.floor(Math.random()*avail.length)];Game.usedEvents.add(ev.id);const popup=spawnPopup(ev,isBurst);Game.lastSpawnAt=Date.now();if(Game.pressureLevel>=3&&Math.random()<.35)spawnSystemToast();return popup}
+function checkRandomEvent(){if(Game.ended||Game.paused)return;const now=Date.now();if(now<Game.randomEventCooldown)return;const elapsed=(Date.now()-Game.gameStartTime)/1000;const needGuarantee=Game.randomEventsThisBlock<1&&elapsed>24&&Game.pressureScore>35;let chance=0;if(needGuarantee)chance=.45;else if(Game.pressureScore>=91)chance=.34;else if(Game.pressureScore>=71)chance=.25;else if(Game.pressureScore>=46)chance=.14;else if(Game.pressureScore>=21)chance=.06;else chance=.015;if(Game.consecutiveIgnores>=2)chance+=.14;if(Game.consecutiveIgnores>=1)chance+=.06;const minStat=Math.min(...Object.values(Game.stats));if(minStat<25)chance+=.14;if(Math.random()<chance)spawnRandomEvent()}
+function spawnRandomEvent(){const avail=RANDOM_EVENTS.filter(e=>!Game.randomEventsUsed.has(e.id));if(avail.length===0)Game.randomEventsUsed.clear();const pool=avail.length>0?avail:RANDOM_EVENTS;const ev=pool[Math.floor(Math.random()*pool.length)];Game.randomEventsUsed.add(ev.id);Game.randomEventsThisBlock++;Game.randomEventCooldown=Date.now()+6500+Math.random()*9000;if(Math.random()<.62||Game.pressureScore>55)setDensityState('burst');else setDensityState('light_queue');const popup=spawnPopup(ev,true);if(popup&&popup.el){popup.el.style.zIndex=++Game.zIndexCounter;updateCardLayers();dom.crisisOverlay.classList.add('active');setTimeout(()=>{if(Game.pressureScore<60)dom.crisisOverlay.classList.remove('active')},400)}}
+
+// ==================== COUNTDOWN WITH URGENCY ====================
+function updateCountdowns(){
+  if(Game.paused)return;
+  const now=Date.now();
+  Game.popups.forEach(p=>{
+    const elapsed=(now-parseInt(p.el.dataset.createdAt))/1000;
+    const remaining=Math.max(0,p.timeoutSec-elapsed);
+    const timerEl=p.el.querySelector('.popup-timer');
+    const fillEl=p.el.querySelector('.popup-countdown-fill');
+    if(timerEl){
+      const rm=Math.ceil(remaining),rmm=Math.floor(rm/60),rss=Math.floor(rm%60);timerEl.textContent=rmm>0?String(rmm).padStart(2,'0')+':'+String(rss).padStart(2,'0'):'00:'+String(rss).padStart(2,'0');
+      timerEl.classList.toggle('urgent',remaining<5);
+    }
+    if(fillEl){
+      fillEl.style.width=(remaining/p.timeoutSec)*100+'%';
+      fillEl.classList.toggle('urgent',remaining<5);
+    }
+    // Progressive urgency
+    p.el.classList.remove('urgent','critical-time');
+    if(remaining<3){p.el.classList.add('critical-time');}
+    else if(remaining<5){p.el.classList.add('urgent');}
+    // Screen micro-shake at 1s
+    if(remaining<1.5&&remaining>0&&!p._shook){
+      p._shook=true;
+      dom.game.classList.add('shaking');
+      setTimeout(()=>{if(Game.pressureLevel<4)dom.game.classList.remove('shaking')},200);
+    }
+    if(remaining<=0)timeoutPopup(p);
+  });
+}
+
+// ==================== PHASE / TIME MANAGEMENT ====================
+function checkPhase(){
+  if(Game.ended||Game.paused)return;
+  updateEmergencyBadge();updateClearCount();
+  const elapsed=(Date.now()-Game.gameStartTime)/1000;
+  Game.gameTime=elapsed;
+  const bh=8,tm=Math.floor(elapsed*2.4),h=bh+Math.floor(tm/60),m=tm%60;
+  dom.statusTime.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  updatePressure();
+  // Reset random event block counter when entering new block
+  const newBlock=Math.floor(elapsed/25);
+  const oldBlock=Math.floor(Math.max(0,elapsed-0.3)/25);
+  if(newBlock!==oldBlock)Game.randomEventsThisBlock=0;
+  if((Game.totalSpawned||0)>=(Game.targetEventTotal||99)&&Game.popups.filter(p=>!p.resolved).length===0)endGame(true);
+  if(elapsed>=Game.gameDuration&&!Game.ended)endGame(true);
+}
+
+// ==================== ENDGAME ====================
+function endGame(survived){if(Game.ended)return;Game.ended=true;clearTimeout(Game.spawnTimer);clearInterval(Game.gameLoopTimer);dom.game.classList.remove('shaking','critical-border');dom.crisisOverlay.classList.remove('active');dom.phaseTransition.classList.remove('show');Game.paused=false;sfxEnd();setTimeout(()=>showSettlement(survived),800)}
+function settlementMetrics(stats,tracker){const total=Math.max(1,tracker.totalPopups||0),completionRate=Math.round((tracker.handledPopups||0)/total*100),abandonRate=((tracker.ignoreCount||0)+(tracker.timedOutPopups||0)*.45)/total,restraintScore=abandonRate<=.08?42:abandonRate<=.36?100:Math.max(35,100-(abandonRate-.36)*160),healthScore=Math.round(stats.battery*.34+stats.emotion*.34+stats.persona*.22+Math.min(stats.progress,82)*.1),overdraftPenalty=Math.max(0,40-stats.battery)*1.1+Math.max(0,40-stats.emotion)*1.1+Math.max(0,35-stats.persona)*.75,completionPenalty=completionRate>=90?Math.max(0,55-stats.battery)*.45+Math.max(0,55-stats.emotion)*.45:0,selfPreservation=Math.max(0,Math.min(100,Math.round(healthScore*.72+restraintScore*.28-overdraftPenalty-completionPenalty)));return{completionRate,selfPreservation,abandonRate}}
+function assessRating(survived,stats,tracker=Game.tracker){const m=settlementMetrics(stats,tracker),coreMin=Math.min(stats.battery,stats.emotion,stats.persona),fragile=[stats.battery,stats.emotion,stats.persona].filter(v=>v<40).length;if(m.completionRate>=90&&(stats.battery<=30||stats.emotion<=30))return{rank:'SLAVE',badge:'隐藏',name:'满分奴隶',text:'通知基本清空了。你也差不多。',metrics:m};if(!survived||coreMin<=8||m.selfPreservation<24)return{rank:'D',name:'人设破损，请及时下线',text:'系统还在运行，但用户已经不适合继续加载。',metrics:m};if(stats.battery>=62&&stats.emotion>=62&&stats.persona>=58&&m.selfPreservation>=76)return{rank:'S',name:'你没有把自己交出去',text:'你让几件事留在原地，也让自己留在了自己这边。',metrics:m};if(m.selfPreservation>=62&&coreMin>=46&&fragile===0)return{rank:'A',name:'今天没有彻底坏掉',text:'有些通知没有得到它想要的反应。很好，它会适应。',metrics:m};if(m.selfPreservation>=45&&coreMin>=30)return{rank:'B',name:'你很能干，但不太像活着',text:'你保住了场面，代价是把自己调成了省电模式。',metrics:m};if(m.selfPreservation>=28)return{rank:'C',name:'你的一天被别人使用了',text:'你一直在响应，像一台礼貌的公共设备。',metrics:m};return{rank:'D',name:'人设破损，请及时下线',text:'今天的表面工程到此为止。继续维护会扩大损坏。',metrics:m}}
+function ratingReason(stats,rating){const m=rating.metrics||settlementMetrics(stats,Game.tracker),lows=[['生命电量',stats.battery],['情绪稳定',stats.emotion],['人设完整',stats.persona]].filter(x=>x[1]<45).sort((a,b)=>a[1]-b[1]);if(rating.rank==='SLAVE')return`完成率 ${m.completionRate}%，生命电量或情绪稳定却已经见底。系统无法把这叫优秀，只能叫服从性良好。`;if(rating.rank==='S')return`完成率不是最高也没关系。你保住了生命电量、情绪稳定和人设完整，还知道哪些事可以先不接住。`;if(rating.rank==='A')return lows.length?`你没有把自己透支到危险线以下，但${lows.map(x=>x[0]).join('和')}已经偏低，评级停在 A。`:'你没有明显崩盘，也没有把每条通知都当圣旨处理。评级为 A。';if(rating.rank==='B')return lows.length?`你处理了不少事，但${lows.slice(0,2).map(x=>x[0]).join('和')}偏低。能干是真的，不太像活着也是真的。`:'系统看到你还在撑，也看到你撑得很紧。评级为 B。';if(rating.rank==='C')return lows.length?`${lows.map(x=>x[0]).join('、')}都在危险区附近。你今天被安排得很满，尤其是被别人安排。`:'你看起来还在运转，里面已经开始空转。评级为 C。';return lows.length?`${lows[0][0]}已经接近见底。今天先别再证明自己还能扛了。`:'综合状态太低，系统建议下线。'}
+function settlementTurnText(rating){if(rating.rank==='SLAVE')return'所有事都完成了。包括把你自己用完。';if(rating.rank==='S')return'未完成事项仍然存在。你也仍然存在。';if(rating.rank==='A')return'今天没有赢，只是没有被完全拿走。';if(rating.rank==='B')return'效率看起来不错，生命体征另算。';if(rating.rank==='C')return'你回复了世界，世界没有负责回复你。';return'人设还能修，先别拿本人继续垫。'}
+function showSettlement(survived){const s=Game.stats,t=Game.tracker,rating=assessRating(survived,s,t),r=rating.rank,displayRank=rating.badge||r;dom.settleTitle.textContent=survived?'今日存活报告':'系统中断报告';dom.settleTitle.className='settle-title '+(survived?'win':'lose');dom.settleRating.textContent=displayRank;dom.settleRating.className='settle-rating '+r;dom.settleCard.innerHTML=[['任务完成率',`${rating.metrics.completionRate}%`],['生活进度',`${s.progress}/100`],['生命电量',`${s.battery}/100`],['情绪稳定',`${s.emotion}/100`],['人设完整',`${s.persona}/100`]].map(row=>`<div class="settle-row"><span class="label">${row[0]}</span><span class="val">${row[1]}</span></div>`).join('');dom.settleTitleName.textContent=`${displayRank} 级：${rating.name}`;dom.settleComment.innerHTML=`<div class="settle-why-title">系统判断</div><div class="settle-why-text">${rating.text}<br><br>${ratingReason(s,rating)}<br><br>${settlementTurnText(rating)}</div>`;dom.settleFootnote.textContent=`处理 ${t.handledPopups}/${t.totalPopups} 条通知。完成所有事不等于活得好。`;showScreen(dom.settlement)}
+
+// ==================== LOADING ====================
+function startLoading(){showScreen(dom.loading);const items=dom.loadingList.querySelectorAll('li');let idx=0;function next(){if(idx>0)items[idx-1].classList.remove('current');if(idx>=items.length){dom.loadingDone.classList.add('show');dom.loadingTag.classList.add('show');setTimeout(startGame,1800);return}items[idx].classList.add('current');setTimeout(()=>{items[idx].classList.add('done');items[idx].classList.remove('current');idx++;setTimeout(next,200)},400+Math.random()*600)}next()}
+
+// ==================== START GAME ====================
+function startGame(){showScreen(dom.game);Game.stats={battery:70,emotion:65,persona:75,progress:30};Game.popups=[];Game.popupIdCounter=0;Game.zIndexCounter=100;Game.gameStartTime=Date.now();Game.ended=false;Game.gameTime=0;Game.paused=false;Game.quietUntil=0;Game.burstUntil=0;Game.lastEmptyHint=0;Game.randomEventCooldown=0;Game.randomEventsUsed=new Set();Game.randomEventsThisBlock=0;Game.lastStateMsgTime=0;Game.densityState='idle';Game.densityStateUntil=Date.now()+randRange(2000,4200);Game.burstQueue=0;Game.lastSpawnAt=0;Game.pressureLevel=0;Game.pressureScore=12;Game.consecutiveIgnores=0;Game.stateMsgShown=new Set();Game.tracker={totalPopups:0,handledPopups:0,timedOutPopups:0,fakeSmileCount:0,ignoreCount:0,honestCount:0,crisisCount:0,longPressSuccess:0,longPressFail:0,swipeAway:0};Game.usedEvents=new Set();dom.popupLayer.innerHTML='';dom.game.classList.remove('shaking','critical-border');dom.crisisOverlay.classList.remove('active');dom.phaseTransition.classList.remove('show');dom.emptyHint.classList.remove('show');dom.pressureInd.classList.remove('show','high');dom.phaseTag.textContent='';dom.batteryIcon.style.width='60%';dom.batteryIcon.style.background='var(--color-neutral-progress)';updateStatUI();updateAvatarStatus();domEmergency.drawer.classList.remove('open');domEmergency.backdrop.classList.remove('show');domEmergency.list.innerHTML='';domEmergency.badge.style.display='none';domEmergency.clearCount.textContent='(0)';
+  showIdleHint();
+  setTimeout(()=>{if(!Game.ended&&Game.popups.length===0){setDensityState('single');trySpawnEvent(true,false)}},Game.densityStateUntil-Date.now()+250);
+  scheduleNextSpawn();
+  Game.gameLoopTimer=setInterval(()=>{updateCountdowns();checkPhase()},200)}
+
+// ==================== DAY RHYTHM EVENT SYSTEM ====================
+const DAY_STAGES=[
+  {key:'morning',label:'早上',start:0,end:.25,budget:[3,5],transition:'刚醒，事情已经开始找你了。'},
+  {key:'work',label:'上午',start:.25,end:.50,budget:[4,6],transition:'你以为上午会过去，其实它只是刚刚开始。'},
+  {key:'noon',label:'下午',start:.50,end:.68,budget:[5,8],transition:'下午的消息开始重叠，你没有空认真崩溃。'},
+  {key:'night',label:'晚上',start:.68,end:1.01,budget:[3,6],transition:'晚上不是休息，是补白天没还完的债。'},
+];
+const BASIC_ACTIONS={
+  solve:{label:'右滑处理',gesture:'swipe_right',hint:'处理 →',effects:{battery:-5,emotion:-4,persona:8,progress:10}},
+  fake:{label:'左滑糊弄',gesture:'swipe_left',hint:'← 糊弄',effects:{battery:0,emotion:-3,persona:6,progress:2}},
+  later:{label:'上滑稍后',gesture:'swipe_up',hint:'↑ 稍后',effects:{battery:0,emotion:3,persona:-7,progress:-6}},
+  click:{label:'点击处理',gesture:'click',hint:'点击处理',effects:{battery:-3,emotion:-3,persona:5,progress:8}},
+  hold:{label:'长按稳住',gesture:'longpress',duration:2,hint:'长按稳住',effects:{battery:-2,emotion:8,persona:0,progress:2}},
+  rapid:{label:'连点关闭',gesture:'rapid_click',clicks:4,hint:'连点关闭',effects:{battery:-4,emotion:-2,persona:0,progress:6}},
+};
+function ev(id,type,source,icon,text,timeout,actions,extra={}){return{ id,type,source,icon,text,timeout,actions,timeoutEffects:extra.timeoutEffects||{battery:0,emotion:-7,persona:-6,progress:-5,msg:'事情没有自己消失。'},revisit:extra.revisit,priority:extra.priority||0,anchorPrefs:extra.anchorPrefs,weight:extra.weight||1,interrupt:!!extra.interrupt }}
+const STAGE_EVENT_POOLS={
+  morning:[
+    ev('m_alarm_1','alarm','闹钟','⏰','第 5 个闹钟正在疯狂响起。TA 还没有睁眼。',10,[BASIC_ACTIONS.rapid,BASIC_ACTIONS.later],{weight:25,priority:2,interrupt:true,anchorPrefs:['center','top_drop'],revisit:{chance:.58,delay:[10,22],text:'闹钟再次响起：你刚才选择了稍后。',timeout:7,label:'再次提醒'}}),
+    ev('m_mom_1','mom','妈妈','👩','妈妈：醒了吗？',11,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:15,priority:2,interrupt:true,anchorPrefs:['center','top_drop'],revisit:{chance:.46,delay:[14,32],text:'妈妈发来 7 秒语音：你是不是还没起？',timeout:8,label:'未回复返场'}}),
+    ev('m_sys_1','system','系统','📱','系统提醒：你的身体还没有同意开机。',9,[BASIC_ACTIONS.hold,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['right_float','center']}),
+    ev('m_weather_1','weather','天气','☁','今日天气：冷，但你已经没时间换衣服。',9,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:10,anchorPrefs:['right_float','center']}),
+    ev('m_schedule_1','schedule','日程','📅','日程提醒：你 18 分钟后应该出现在另一个地方。',8,[BASIC_ACTIONS.solve,BASIC_ACTIONS.later],{weight:20,priority:1,anchorPrefs:['top_drop','center'],revisit:{chance:.35,delay:[12,26],text:'迟到预警：你离那个地方依然很远。',timeout:6,label:'再次提醒'}}),
+    ev('m_life_1','life','生活','🔌','充电器似乎没有被拔下来。',10,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['center_low','right_float']}),
+    ev('m_room_1','life','室友','🏠','室友：你钥匙是不是还插在门上？',10,[BASIC_ACTIONS.solve,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['left_float','center_low']}),
+  ],
+  work:[
+    ev('w_teacher_1','teacher','老师','📚','老师：收到请回复。',9,[BASIC_ACTIONS.solve,BASIC_ACTIONS.fake,BASIC_ACTIONS.later],{weight:25,priority:2,interrupt:true,anchorPrefs:['top_drop','center'],revisit:{chance:.52,delay:[14,30],text:'老师：你现在方便吗？',timeout:7,label:'追问返场'}}),
+    ev('w_group_1','group','群聊','💬','群聊有人 @你：这个表是不是你做？',10,[BASIC_ACTIONS.solve,BASIC_ACTIONS.fake,BASIC_ACTIONS.later],{weight:20,priority:1,interrupt:true,anchorPrefs:['left_float','right_float'],revisit:{chance:.44,delay:[12,35],text:'有人私聊你：你看群了吗？',timeout:8,label:'未处理返场'}}),
+    ev('w_file_1','file','文件','📄','文件名“最终版2”被再次修改。',10,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:20,anchorPrefs:['right_float','center']}),
+    ev('w_classmate_1','classmate','同学','👤','同学：老师刚刚点名了。',8,[BASIC_ACTIONS.fake,BASIC_ACTIONS.solve,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['left_float','center']}),
+    ev('w_check_1','checkin','打卡','📍','打卡失败：定位似乎比你本人更诚实。',8,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:10,anchorPrefs:['top_drop','right_float']}),
+    ev('w_sys_1','system','系统','📱','系统提醒：你正在假装自己已经进入状态。',11,[BASIC_ACTIONS.hold,BASIC_ACTIONS.later],{weight:10,anchorPrefs:['right_float','center']}),
+  ],
+  noon:[
+    ev('n_food_1','delivery','外卖','🛵','外卖骑手：电话没接，我放哪？',8,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:25,priority:2,interrupt:true,anchorPrefs:['center_low','top_drop'],revisit:{chance:.5,delay:[10,24],text:'外卖骑手：我先放门口了。',timeout:6,label:'再次提醒'}}),
+    ev('n_package_1','delivery','快递','📦','快递员：我在楼下，你人呢？',8,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:25,priority:2,interrupt:true,anchorPrefs:['center_low','top_drop'],revisit:{chance:.48,delay:[12,28],text:'快递员：我先放门口了。',timeout:6,label:'未处理返场'}}),
+    ev('n_money_1','money','余额','💳','余额提醒：本月支出正在失去理智。',10,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['right_float','center']}),
+    ev('n_rest_1','body','午休','🫥','午休倒计时：你还有 11 分钟假装休息。',11,[BASIC_ACTIONS.hold,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['center','center_low']}),
+    ev('n_mom_1','mom','妈妈','👩','妈妈发来 7 条语音。',10,[BASIC_ACTIONS.click,BASIC_ACTIONS.later],{weight:15,priority:1,anchorPrefs:['top_drop','center'],revisit:{chance:.42,delay:[15,34],text:'妈妈：刚才的语音你听了吗？',timeout:8,label:'家人返场'}}),
+    ev('n_group_1','group','群聊','💬','群聊正在讨论一个你没看到开头的话题。',10,[BASIC_ACTIONS.fake,BASIC_ACTIONS.solve,BASIC_ACTIONS.later],{weight:20,anchorPrefs:['left_float','right_float']}),
+  ],
+  night:[
+    ev('e_ddl_1','ddl','DDL','⏳','DDL 提醒：你还有 43 分钟组织语言。',8,[BASIC_ACTIONS.solve,BASIC_ACTIONS.later],{weight:25,priority:3,interrupt:true,anchorPrefs:['top_drop','center'],revisit:{chance:.6,delay:[10,24],text:'系统提示：时间没有因为你稍后而停止。',timeout:6,label:'DDL返场'}}),
+    ev('e_unread_1','unread','私聊','💬','有人私聊你：你看群了吗？',9,[BASIC_ACTIONS.solve,BASIC_ACTIONS.fake,BASIC_ACTIONS.later],{weight:20,priority:1,anchorPrefs:['left_float','right_float'],revisit:{chance:.46,delay:[12,30],text:'对方又发来一个问号。',timeout:7,label:'未回复返场'}}),
+    ev('e_teacher_1','teacher','老师','📚','老师：你现在方便吗？',8,[BASIC_ACTIONS.solve,BASIC_ACTIONS.fake,BASIC_ACTIONS.later],{weight:15,priority:2,interrupt:true,anchorPrefs:['top_drop','center']}),
+    ev('e_plan_1','schedule','安排冲突','📅','晚上安排冲突：你答应了两件发生在同一时间的事。',9,[BASIC_ACTIONS.solve,BASIC_ACTIONS.later],{weight:15,anchorPrefs:['center','center_low']}),
+    ev('e_emotion_1','emotion','情绪','⚠','情绪稳定值下降：但你还要装作没事。',7,[BASIC_ACTIONS.hold,{...BASIC_ACTIONS.click,label:'点击释放',hint:'点击释放',effects:{battery:0,emotion:14,persona:-18,progress:0}}],{weight:15,priority:2,anchorPrefs:['center','top_drop']}),
+    ev('e_tomorrow_1','alarm','明天','⏰','明天的闹钟已经在后台排队。',10,[BASIC_ACTIONS.rapid,BASIC_ACTIONS.later],{weight:10,anchorPrefs:['right_float','center']}),
+  ],
+};
+function cloneEvent(src,patch={}){return JSON.parse(JSON.stringify({...src,...patch,actions:patch.actions||src.actions}))}
+function currentStageByTime(){const ratio=Math.min(.999,Game.gameTime/Game.gameDuration);return DAY_STAGES.find(s=>ratio>=s.start&&ratio<s.end)||DAY_STAGES[0]}
+function weightedEvent(pool){const total=pool.reduce((s,e)=>s+(e.weight||1),0);let r=Math.random()*total;for(const e of pool){r-=e.weight||1;if(r<=0)return e}return pool[pool.length-1]}
+function nextStageDelay(){const r=Math.random();if(r<.3)return randRange(800,1500);if(r<.8)return randRange(1800,3500);return randRange(3500,6000)}
+function beginStage(stage){Game.dayStage=stage.key;Game.stageInterrupts=0;Game.usedStageEvents=new Set()}
+function spawnStageToast(text){const t=document.createElement('div');t.className='system-toast';t.textContent=text;dom.popupLayer.appendChild(t);setTimeout(()=>t.remove(),2200)}
+function refreshStage(){const st=currentStageByTime();if(Game.dayStage!==st.key)beginStage(st)}
+function allPlayableEvents(){return Object.values(STAGE_EVENT_POOLS).flat()}
+function pickStageEvent(){const pool=allPlayableEvents();let candidates=pool.filter(e=>!Game.usedEvents.has(e.id));if(candidates.length===0){Game.usedEvents.clear();candidates=pool}const picked=weightedEvent(candidates);Game.usedEvents.add(picked.id);return cloneEvent(picked)}
+function chooseAnchor(evData,mode){if(mode==='interrupt')return weightedPick([['top_drop',45],['center',30],['left_float',12],['right_float',13]]);if(evData.anchorPrefs?.length)return evData.anchorPrefs[Math.floor(Math.random()*evData.anchorPrefs.length)];if(['delivery'].includes(evData.type))return weightedPick([['center_low',55],['center',25],['top_drop',20]]);if(['group','friend','classmate','unread'].includes(evData.type))return weightedPick([['left_float',45],['right_float',35],['center',20]]);if(['teacher','mom','alarm','ddl'].includes(evData.type))return weightedPick([['top_drop',45],['center',45],['center_low',10]]);return weightedPick([['center',34],['center_low',26],['left_float',20],['right_float',20]])}
+function anchorRect(anchor){const layer=dom.popupLayer,w=layer.clientWidth,h=layer.clientHeight,cw=Math.min(340,w*.86),pad=10;const cx=(w-cw)/2;const yTop=Math.max(12,h*.08),yMid=Math.max(20,h*.24),yLow=Math.min(h-210,Math.max(34,h*.43));const map={center:[cx,yMid],center_low:[cx,yLow],left_float:[Math.max(pad,cx-34),yMid+14],right_float:[Math.min(w-cw-pad,cx+34),yMid+8],top_drop:[cx,yTop]};const base=map[anchor]||map.center;return{x:Math.max(pad,Math.min(w-cw-pad,base[0]+randRange(-18,18))),y:Math.max(4,Math.min(h-170,base[1]+randRange(-12,16))),w:cw}}
+function revisitEvent(original,action){const rv=original.revisit;if(!rv||Game.debtQueue.length>=6)return;const debtChance=rv.chance||.4;if(Math.random()>debtChance)return;const due=Date.now()+randRange((rv.delay?.[0]||10)*1000,(rv.delay?.[1]||35)*1000);const debt=cloneEvent(original,{id:original.id+'_rv_'+Date.now(),text:rv.text||('再次提醒：'+original.text),timeout:rv.timeout||Math.max(5,Math.round(original.timeout*.75))});debt.revisit=null;debt.revisitLabel=rv.label||'未处理返场';debt.priority=(original.priority||0)+1;Game.debtQueue.push({due,event:debt})}
+function shouldCreateDebt(action){const t=(action.label||'')+(action.hint||'')+(action.gesture||'');return /稍后|忽略|假装|装没|不回|清空|拖|挂断|放门口|糊弄/.test(t)||action.gesture==='swipe_up'||action.gesture==='swipe_down'}
+function dueDebtEvent(){const now=Date.now();const idx=Game.debtQueue.findIndex(d=>d.due<=now);if(idx<0)return null;return Game.debtQueue.splice(idx,1)[0].event}
+function canInterject(evData){return evData.interrupt&&Game.stageInterrupts<2&&Game.popups.length>0&&Math.random()<.22}
+
+function updateCardLayers(){const active=Game.popups.filter(p=>!p.resolved);if(active.length===0)return;const sorted=[...active].sort((a,b)=>(parseInt(a.el.style.zIndex)||0)-(parseInt(b.el.style.zIndex)||0));const layer=dom.popupLayer,w=layer.clientWidth,h=layer.clientHeight;const front=sorted[sorted.length-1];sorted.forEach((p,i)=>{const depth=sorted.length-1-i;p.el.classList.remove('stack-front','stack-mid','stack-deep','side-hint');p.el.style.display=depth>3?'none':'block';if(depth>3)return;const rot=Number(p.el.dataset.rotation||0);if(depth===0){const pos=p.anchorPos||anchorRect(p.anchor||'center');p.el.classList.add('stack-front');p.el.style.pointerEvents='auto';p.el.style.left=pos.x+'px';p.el.style.top=pos.y+'px';p.el.style.transform=`rotate(${rot}deg) scale(1)`;p.el.style.zIndex=140}else{p.el.classList.add(depth===1?'stack-mid':'stack-deep','side-hint');p.el.style.pointerEvents='none';const side=depth%2?-1:1;const x=Math.max(4,Math.min(w-110,(front.anchorPos?.x||w*.08)+side*(44+depth*18)));const y=Math.max(4,Math.min(h-100,(front.anchorPos?.y||h*.25)+depth*34));p.el.style.left=x+'px';p.el.style.top=y+'px';p.el.style.transform=`rotate(${rot+side*1.2}deg) scale(${Math.max(.78,1-depth*.08)})`;p.el.style.zIndex=120-depth}});updatePressureInd()}
+function spawnPopup(eventData,isRandom=false,mode='normal'){if(Game.ended||Game.paused)return;const layer=dom.popupLayer,id=++Game.popupIdCounter;const anchor=chooseAnchor(eventData,mode);const pos=anchorRect(anchor);const el=document.createElement('div');el.className='popup anchor-'+anchor.replace('_','-')+(isRandom?' random-event':'')+(mode==='interrupt'?' interrupt-in':'')+(eventData.revisitLabel?' revisit-in':'');el.dataset.id=id;el.dataset.revisitLabel=eventData.revisitLabel||'';const rot=randRange(-1.5,1.5);el.dataset.rotation=rot;const start={center:[pos.x,pos.y],center_low:[pos.x,pos.y+36],left_float:[pos.x-48,pos.y],right_float:[pos.x+48,pos.y],top_drop:[pos.x,pos.y-44]}[anchor]||[pos.x,pos.y];el.style.left=start[0]+'px';el.style.top=start[1]+'px';el.style.transform=`rotate(${rot}deg)`;el.style.zIndex=++Game.zIndexCounter;const tension=Game.pressureScore>70 ? .82 : Game.pressureScore>45 ? .92 : 1;const timeoutSec=Math.max(4,Math.round(eventData.timeout*(isRandom ? .82 : tension)));el.dataset.timeout=timeoutSec;el.dataset.createdAt=Date.now();const hints=[];let hasRapid=false;eventData.actions.forEach(a=>{if(a.gesture==='swipe_left')hints.push('← '+(a.hint||a.label||'左滑'));else if(a.gesture==='swipe_right')hints.push((a.hint||a.label||'右滑')+' →');else if(a.gesture==='swipe_up')hints.push('↑ '+(a.hint||a.label||'上滑'));else if(a.gesture==='swipe_down')hints.push('↓ '+(a.hint||a.label||'下滑'));else if(a.gesture==='click')hints.push(a.hint||'点击处理');else if(a.gesture==='longpress')hints.push(a.hint||'长按');else if(a.gesture==='rapid_click'){hasRapid=true;hints.push(a.hint||'连点')}});el.innerHTML=`<div class="popup-header"><span class="popup-source"><span class="popup-source-icon">${eventData.icon}</span>${eventData.source}</span><span class="popup-timer">${(()=>{const mm=Math.floor(timeoutSec/60),ss=Math.floor(timeoutSec%60);return mm>0?String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'):'00:'+String(ss).padStart(2,'0')})()}</span></div><div class="popup-countdown-bar"><div class="popup-countdown-fill" style="width:100%"></div></div><div class="popup-body">${eventData.text}</div><div class="popup-hints">${hints.map(h=>`<span>${h}</span>`).join('<span class="hint-sep"> · </span>')}</div><div class="hold-ring"></div><div class="rapid-dots">${hasRapid?'<span></span><span></span><span></span><span></span><span></span>':''}</div><div class="popup-swipe-fb left"></div><div class="popup-swipe-fb right"></div><div class="popup-swipe-fb up"></div><div class="popup-swipe-fb down"></div>`;layer.appendChild(el);const popupObj={id,el,eventData,timeoutSec,resolved:false,isRandom,anchor,anchorPos:pos};Game.popups.push(popupObj);while(Game.popups.filter(p=>!p.resolved).length>4){const old=Game.popups.find(p=>!p.resolved&&p!==popupObj);if(!old)break;old.resolved=true;old.el.classList.add('resolved');setTimeout(()=>removePopup(old),250)}bindPopupEvents(popupObj);sfxPopup();if(mode==='interrupt'){dom.game.classList.add('shaking');setTimeout(()=>dom.game.classList.remove('shaking'),200)}requestAnimationFrame(updateCardLayers);updateEmptyHint();return popupObj}
+function resolvePopup(popup,action){if(!Game.popups.includes(popup)||popup.resolved)return;popup.resolved=true;if(navigator.vibrate)navigator.vibrate(15);updateStats(action.effects);showFeedback(popup.el,action.label);Game.tracker.handledPopups++;if(shouldCreateDebt(action))revisitEvent(popup.eventData,action);const isIgnore=action.gesture==='swipe_up'||action.gesture==='swipe_down';if(isIgnore){Game.tracker.ignoreCount++;Game.consecutiveIgnores++;Game.pressureScore=Math.min(100,Game.pressureScore+8)}else{Game.consecutiveIgnores=0;Game.pressureScore=Math.max(0,Game.pressureScore-5)}if(action.gesture==='longpress')Game.tracker.longPressSuccess++;popup.el.style.transform='';popup.el.classList.add('resolved');setTimeout(()=>removePopup(popup),250)}
+function timeoutPopup(popup){if(!Game.popups.includes(popup)||popup.resolved)return;popup.resolved=true;updateStats(popup.eventData.timeoutEffects||{battery:0,emotion:-10,persona:-10,progress:-5});if(popup.eventData.revisit&&Math.random()<.5)revisitEvent(popup.eventData,{label:'超时未处理',gesture:'timeout'});Game.tracker.timedOutPopups++;Game.consecutiveIgnores++;Game.pressureScore=Math.min(100,Game.pressureScore+10);popup.el.classList.add('timed-out');sfxTimeout();showFeedback(popup.el,(popup.eventData.timeoutEffects||{}).msg||'超时了...');setTimeout(()=>removePopup(popup),350)}
+function updatePressure(){if(Game.ended||Game.paused)return;const n=Game.popups.filter(p=>!p.resolved).length,minStat=Math.min(...Object.values(Game.stats));Game.pressureScore=clamp(Math.round(Game.pressureScore*.88+(n*7+(100-minStat)*.22+Game.debtQueue.length*3+Game.consecutiveIgnores*5)*.12));dom.game.classList.toggle('shaking',Game.pressureScore>=92);dom.phaseTag.textContent=Game.dayStage?DAY_STAGES.find(s=>s.key===Game.dayStage)?.label||'':'';updatePressureInd()}
+function updatePressureInd(){const n=Game.popups.filter(p=>!p.resolved).length,debt=Game.debtQueue?.length||0,ind=dom.pressureInd;ind.classList.remove('show','high');if(debt>=3){ind.textContent='后台未了结 '+debt;ind.classList.add('show',Game.pressureScore>70?'high':'')}else if(n>=3){ind.textContent='待处理 '+n;ind.classList.add('show',Game.pressureScore>70?'high':'')}}
+function scheduleNextSpawn(){if(Game.ended||Game.paused)return;const delay=Math.max(250,Game.nextEventAt-Date.now());Game.spawnTimer=setTimeout(()=>{if(Game.ended||Game.paused){scheduleNextSpawn();return}refreshStage();const debt=dueDebtEvent();const active=Game.popups.filter(p=>!p.resolved).length;if(debt&&active<4){spawnPopup(debt,true,'revisit')}else if(Game.stageSpawned<Game.stageBudget&&active<4){let evData=pickStageEvent();const interject=canInterject(evData);if(interject)Game.stageInterrupts++;spawnPopup(evData,interject,interject?'interrupt':'normal');Game.stageSpawned++}else if(active===0&&Math.random()<.3){showIdleHint()}Game.nextEventAt=Date.now()+nextStageDelay();scheduleNextSpawn()},delay)}
+function checkPhase(){if(Game.ended||Game.paused)return;updateEmergencyBadge();updateClearCount();const elapsed=(Date.now()-Game.gameStartTime)/1000;Game.gameTime=elapsed;const bh=8,tm=Math.floor(elapsed*6.4),h=bh+Math.floor(tm/60),m=tm%60;dom.statusTime.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;refreshStage();updatePressure();if(elapsed>=Game.gameDuration&&!Game.ended)endGame(true)}
+function startGame(){clearTimeout(Game.spawnTimer);clearInterval(Game.gameLoopTimer);showScreen(dom.game);Game.stats={battery:70,emotion:65,persona:75,progress:30};Game.popups=[];Game.popupIdCounter=0;Game.zIndexCounter=100;Game.gameStartTime=Date.now();Game.ended=false;Game.gameTime=0;Game.paused=false;Game.quietUntil=0;Game.burstUntil=0;Game.lastEmptyHint=0;Game.randomEventCooldown=0;Game.randomEventsUsed=new Set();Game.randomEventsThisBlock=0;Game.lastStateMsgTime=0;Game.pressureLevel=0;Game.pressureScore=12;Game.consecutiveIgnores=0;Game.stateMsgShown=new Set();Game.tracker={totalPopups:0,handledPopups:0,timedOutPopups:0,fakeSmileCount:0,ignoreCount:0,honestCount:0,crisisCount:0,longPressSuccess:0,longPressFail:0,swipeAway:0};Game.usedEvents=new Set();Game.debtQueue=[];Game.dayStage=null;Game.stageBudget=0;Game.stageSpawned=0;Game.stageInterrupts=0;Game.usedStageEvents=new Set();Game.nextEventAt=Date.now()+randRange(1800,3600);dom.popupLayer.innerHTML='<div id="empty-hint"></div><div id="pressure-indicator"></div>';dom.emptyHint=$('#empty-hint');dom.pressureInd=$('#pressure-indicator');dom.game.classList.remove('shaking','critical-border');dom.crisisOverlay.classList.remove('active');dom.phaseTransition.classList.remove('show');dom.pressureInd.classList.remove('show','high');dom.phaseTag.textContent='';dom.batteryIcon.style.width='60%';dom.batteryIcon.style.background='var(--color-neutral-progress)';updateStatUI();updateAvatarStatus();domEmergency.drawer.classList.remove('open');domEmergency.backdrop.classList.remove('show');domEmergency.list.innerHTML='';domEmergency.badge.style.display='none';domEmergency.clearCount.textContent='(0)';refreshStage();showIdleHint();scheduleNextSpawn();Game.gameLoopTimer=setInterval(()=>{updateCountdowns();checkPhase()},200)}
+
+const WAVE_RULES={
+  calm:{count:[0,1],gap:[500,1200],after:[800,1600]},
+  trickle:{count:[1,3],gap:[350,800],after:[700,1400]},
+  burst:{count:[3,5],gap:[120,300],after:[900,1800]},
+  pressure:{count:[5,8],gap:[80,220],after:[1000,2500]},
+  recovery:{count:[0,1],gap:[700,1200],after:[1000,2500]},
+};
+const STAGE_WAVES={
+  morning:[['calm',35],['trickle',46],['burst',16],['pressure',3]],
+  work:[['calm',18],['trickle',42],['burst',30],['pressure',10]],
+  noon:[['calm',15],['trickle',30],['burst',40],['pressure',15]],
+  night:[['calm',10],['trickle',24],['burst',42],['pressure',24]],
+};
+const ACTION_POOL={
+  family:[['swipe_right','敷衍一句'],['longpress','忍住'],['swipe_down','看完整消息'],['swipe_up','暂时压下去']],
+  authority:[['swipe_down','查看附件'],['swipe_right','确认收到'],['longpress','硬着头皮处理'],['swipe_up','延后']],
+  junk:[['swipe_left','划走'],['swipe_up','收起'],['rapid_click','连点关闭']],
+  group:[['swipe_up','压下去'],['swipe_left','清掉'],['rapid_click','抢救重点'],['swipe_down','查看重点']],
+  alarm:[['rapid_click','关闭'],['longpress','确认'],['swipe_up','稍后提醒']],
+  friend:[['swipe_right','回复一下'],['longpress','假装冷静'],['swipe_up','暂时不管'],['swipe_down','看完整内容']],
+  delivery:[['swipe_right','联系一下'],['swipe_down','查看详情'],['swipe_up','先放门口']],
+  emotion:[['longpress','忍住'],['swipe_down','面对一下'],['swipe_up','压回去']],
+};
+function actionFamily(type){if(['mom'].includes(type))return'family';if(['teacher','boss','ddl','file','schedule','checkin'].includes(type))return'authority';if(['system','weather','money'].includes(type))return'junk';if(['group','social'].includes(type))return'group';if(['alarm'].includes(type))return'alarm';if(['friend','classmate','unread'].includes(type))return'friend';if(['delivery'].includes(type))return'delivery';if(['emotion','body'].includes(type))return'emotion';return'friend'}
+function gestureAction(type,stageKey){const family=actionFamily(type),pool=ACTION_POOL[family]||ACTION_POOL.friend;let pick=pool[Math.floor(Math.random()*pool.length)];if(Game.pressureScore>68&&Math.random()<.18){pick=[['swipe_down','查看详情'],['longpress','处理复杂事项'],['rapid_click','抢救一下']][Math.floor(Math.random()*3)]}const gesture=pick[0],verb=pick[1],base={label:gestureLabel(gesture)+verb,gesture,hint:gestureLabel(gesture)+verb,effects:{battery:-3,emotion:-3,persona:4,progress:6}};if(gesture==='longpress')base.duration=1.6+Math.random()*.8;if(gesture==='rapid_click')base.clicks=3+Math.floor(Math.random()*2);if(['swipe_up','swipe_left'].includes(gesture))base.effects={battery:0,emotion:2,persona:-6,progress:-4};if(gesture==='swipe_down')base.effects={battery:-5,emotion:-5,persona:6,progress:8};return base}
+function gestureLabel(g){return g==='swipe_left'?'左滑':g==='swipe_right'?'右滑':g==='swipe_up'?'上滑':g==='swipe_down'?'下滑':g==='longpress'?'长按':g==='rapid_click'?'连点':''}
+function prepareEventForPlay(raw){const evData=cloneEvent(raw);const primary=gestureAction(evData.type,Game.dayStage);evData.actions=[primary];evData.notificationTitle=evData.source;evData.preview=evData.text.replace(/^[^：:]+[：:]\s*/,'');return evData}
+function compactHint(action){const label=action.hint||action.label||'';if((Date.now()-Game.gameStartTime)<20000)return label;return label.replace('左滑','← ').replace('右滑','→ ').replace('上滑','↑ ').replace('下滑','↓ ').replace('长按','长按 / ').replace('连点','连点 / ')}
+function chooseAnchor(evData,mode){if(mode==='ghost')return weightedPick([['top_drop',60],['center',40]]);if(mode==='interrupt')return weightedPick([['center_low',45],['center',25],['top_drop',20],['left_float',5],['right_float',5]]);if(['delivery','alarm'].includes(evData.type))return weightedPick([['center_low',58],['center',25],['top_drop',17]]);if(['group','friend','classmate','unread'].includes(evData.type))return weightedPick([['center_low',34],['left_float',26],['right_float',25],['center',15]]);if(['teacher','mom','ddl'].includes(evData.type))return weightedPick([['center_low',38],['center',34],['top_drop',28]]);return weightedPick([['center_low',42],['center',26],['left_float',16],['right_float',16]])}
+function anchorRect(anchor){const layer=dom.popupLayer,w=layer.clientWidth,h=layer.clientHeight,cw=Math.min(430,w*.90),pad=10;const cx=(w-cw)/2;const yTop=Math.max(8,h*.12),yMid=Math.max(20,h*.50),yLow=Math.min(h-118,Math.max(34,h*.66));const map={center:[cx,yMid],center_low:[cx,yLow],left_float:[Math.max(pad,cx-22),yLow-34],right_float:[Math.min(w-cw-pad,cx+22),yLow-26],top_drop:[cx,yTop]};const base=map[anchor]||map.center;return{x:Math.max(pad,Math.min(w-cw-pad,base[0]+randRange(-14,14))),y:Math.max(6,Math.min(h-118,base[1]+randRange(-10,14))),w:cw}}
+function updateCardLayers(){const active=Game.popups.filter(p=>!p.resolved);if(active.length===0)return;const sorted=[...active].sort((a,b)=>(parseInt(a.el.style.zIndex)||0)-(parseInt(b.el.style.zIndex)||0));const layer=dom.popupLayer,w=layer.clientWidth,h=layer.clientHeight;const front=sorted[sorted.length-1];sorted.forEach((p,i)=>{const depth=sorted.length-1-i;p.el.classList.remove('stack-front','stack-mid','stack-deep','side-hint','ghost-notification');if(depth>8){p.el.style.display='none';return}p.el.style.display='grid';const rot=Number(p.el.dataset.rotation||0);if(depth===0){const pos=p.anchorPos||anchorRect(p.anchor||'center_low');p.el.classList.add('stack-front');p.el.style.pointerEvents='auto';p.el.style.left=pos.x+'px';p.el.style.top=pos.y+'px';p.el.style.transform=`rotate(${rot}deg) scale(1)`;p.el.style.zIndex=160}else if(depth<=3){p.el.classList.add(depth===1?'stack-mid':'stack-deep','side-hint');p.el.style.pointerEvents='none';const x=Math.max(8,Math.min(w-80,(front.anchorPos?.x||w*.05)+randRange(-10,10)));const y=Math.max(8,Math.min(h-88,(front.anchorPos?.y||h*.66)-depth*18-randRange(0,12)));p.el.style.left=x+'px';p.el.style.top=y+'px';p.el.style.transform=`rotate(${rot+randRange(-1.5,1.5)}deg) scale(${Math.max(.86,1-depth*.045)})`;p.el.style.zIndex=145-depth}else{p.el.classList.add('ghost-notification');p.el.style.pointerEvents='none';p.el.style.left=Math.max(8,Math.min(w-120,(w-Math.min(380,w*.82))/2+randRange(-28,28)))+'px';p.el.style.top=Math.max(4,Math.min(h*.44,24+depth*18))+'px';p.el.style.transform=`rotate(${rot}deg) scale(${Math.max(.7,1-depth*.045)})`;p.el.style.zIndex=80-depth}});updatePressureInd()}
+function spawnPopup(eventData,isRandom=false,mode='normal'){if(Game.ended||Game.paused)return;const evData=eventData.actions?.length===1&&eventData.notificationTitle?eventData:prepareEventForPlay(eventData);const layer=dom.popupLayer,id=++Game.popupIdCounter;const anchor=chooseAnchor(evData,mode);const pos=anchorRect(anchor);const el=document.createElement('div');const training=(Date.now()-Game.gameStartTime)<20000;el.className='popup anchor-'+anchor.replace('_','-')+(isRandom?' random-event':'')+(mode==='interrupt'?' interrupt-in':'')+(evData.revisitLabel?' revisit-in':'')+(training?' training-hint':' compact-hint');el.dataset.id=id;el.dataset.revisitLabel=evData.revisitLabel||'';const rot=randRange(-2.2,2.2);el.dataset.rotation=rot;el.style.left=pos.x+'px';el.style.top=(pos.y+26)+'px';el.style.transform=`rotate(${rot}deg) scale(.98)`;el.style.zIndex=++Game.zIndexCounter;const tension=Game.pressureScore>70?.82:Game.pressureScore>45?.92:1;const timeoutSec=Math.max(4,Math.round(evData.timeout*(isRandom?.86:tension)));el.dataset.timeout=timeoutSec;el.dataset.createdAt=Date.now();const action=evData.actions[0],hint=compactHint(action),title=evData.notificationTitle||evData.source,preview=evData.preview||evData.text;el.innerHTML=`<div class="popup-header"><span class="popup-source"><span class="popup-source-icon">${evData.icon}</span><span class="popup-source-text">${title}</span></span><span class="popup-timer">${training?'现在':'1分钟前'}</span></div><div class="popup-countdown-bar"><div class="popup-countdown-fill" style="width:100%"></div></div><div class="popup-body">${preview}</div><div class="popup-hints"><span>${hint}</span></div><div class="hold-ring"></div><div class="rapid-dots">${action.gesture==='rapid_click'?'<span></span><span></span><span></span><span></span>':''}</div><div class="popup-swipe-fb left"></div><div class="popup-swipe-fb right"></div><div class="popup-swipe-fb up"></div><div class="popup-swipe-fb down"></div>`;layer.appendChild(el);const popupObj={id,el,eventData:evData,timeoutSec,resolved:false,isRandom,anchor,anchorPos:pos};Game.popups.push(popupObj);while(Game.popups.filter(p=>!p.resolved).length>9){const old=Game.popups.find(p=>!p.resolved&&p!==popupObj);if(!old)break;old.resolved=true;old.el.classList.add('resolved');setTimeout(()=>removePopup(old),250)}bindPopupEvents(popupObj);sfxPopup();if(mode==='interrupt'||Game.waveMode==='pressure'){dom.game.classList.add('shaking');setTimeout(()=>dom.game.classList.remove('shaking'),180)}requestAnimationFrame(updateCardLayers);updateEmptyHint();return popupObj}
+function stageWaveMode(){if(Game.forceRecovery){Game.forceRecovery=false;return'recovery'}const p=Game.pressureScore||0;if(p>72)return weightedPick([['trickle',22],['burst',52],['pressure',26]]);if(p>42)return weightedPick([['calm',18],['trickle',42],['burst',32],['pressure',8]]);return weightedPick([['calm',32],['trickle',48],['burst',18],['pressure',2]])}
+function spawnWaveItem(i,total){if(Game.ended||Game.paused)return;refreshStage();const active=Game.popups.filter(p=>!p.resolved).length;if(active<9){const debt=dueDebtEvent();let evData=debt||pickStageEvent();const mode=debt?'revisit':(canInterject(evData)?'interrupt':'normal');if(mode==='interrupt')Game.stageInterrupts++;spawnPopup(evData,!!debt,mode);Game.stageSpawned++}}
+function scheduleNextSpawn(){if(Game.ended||Game.paused)return;const mode=stageWaveMode(),rule=WAVE_RULES[mode],count=Math.floor(randRange(rule.count[0],rule.count[1]+1));Game.waveMode=mode;if(mode==='pressure')Game.forceRecovery=true;let t=0;for(let i=0;i<count;i++){t+=randRange(rule.gap[0],rule.gap[1]);setTimeout(()=>spawnWaveItem(i,count),t)}Game.spawnTimer=setTimeout(()=>{Game.waveMode='calm';scheduleNextSpawn()},t+randRange(rule.after[0],rule.after[1]))}
+function startGame(){clearTimeout(Game.spawnTimer);clearInterval(Game.gameLoopTimer);showScreen(dom.game);Game.stats={battery:70,emotion:65,persona:75,progress:30};Game.popups=[];Game.popupIdCounter=0;Game.zIndexCounter=100;Game.gameStartTime=Date.now();Game.ended=false;Game.gameTime=0;Game.paused=false;Game.quietUntil=0;Game.burstUntil=0;Game.lastEmptyHint=0;Game.randomEventCooldown=0;Game.randomEventsUsed=new Set();Game.randomEventsThisBlock=0;Game.lastStateMsgTime=0;Game.pressureLevel=0;Game.pressureScore=12;Game.consecutiveIgnores=0;Game.stateMsgShown=new Set();Game.tracker={totalPopups:0,handledPopups:0,timedOutPopups:0,fakeSmileCount:0,ignoreCount:0,honestCount:0,crisisCount:0,longPressSuccess:0,longPressFail:0,swipeAway:0};Game.usedEvents=new Set();Game.debtQueue=[];Game.dayStage=null;Game.stageBudget=999;Game.stageSpawned=0;Game.stageInterrupts=0;Game.usedStageEvents=new Set();Game.waveMode='calm';Game.forceRecovery=false;dom.popupLayer.innerHTML='<div id="empty-hint"></div><div id="pressure-indicator"></div>';dom.emptyHint=$('#empty-hint');dom.pressureInd=$('#pressure-indicator');dom.game.classList.remove('shaking','critical-border');dom.crisisOverlay.classList.remove('active');dom.phaseTransition.classList.remove('show');dom.pressureInd.classList.remove('show','high');dom.phaseTag.textContent='';dom.batteryIcon.style.width='60%';dom.batteryIcon.style.background='var(--color-neutral-progress)';updateStatUI();updateAvatarStatus();domEmergency.drawer.classList.remove('open');domEmergency.backdrop.classList.remove('show');domEmergency.list.innerHTML='';domEmergency.badge.style.display='none';domEmergency.clearCount.textContent='(0)';refreshStage();showIdleHint();setTimeout(scheduleNextSpawn,900);Game.gameLoopTimer=setInterval(()=>{updateCountdowns();checkPhase()},200)}
+
+function getFrontPopup(){return [...Game.popups].filter(p=>!p.resolved).sort((a,b)=>(parseInt(a.el.style.zIndex)||0)-(parseInt(b.el.style.zIndex)||0)).pop()||null}
+function isFrontPopup(popup){const front=getFrontPopup();return !!front&&front.id===popup.id}
+function blockNonFrontPopup(popup){if(!popup||popup.resolved)return;popup.el.classList.add('focus-blocked');showFeedback(popup.el,'先处理前面这条');setTimeout(()=>popup.el.classList.remove('focus-blocked'),300)}
+function wrongGesture(el,msg='再看一下右下角提示'){el.classList.add('wrong-action');Game.pressureScore=Math.min(100,(Game.pressureScore||0)+2);showFeedback(el,msg);beep(150,.12,'sawtooth',.035);setTimeout(()=>el.classList.remove('wrong-action'),360)}
+function bindPopupEvents(popup){const el=popup.el,eventData=popup.eventData;let sx=0,sy=0,st=0,origX=0,origY=0,down=false,moved=false,holdTimer=null,holdStart=0,rapidCount=0,lastTap=0;const SWIPE_X=104,SWIPE_Y=94,TAP_MOVE=14;
+  function clearHold(){if(holdTimer){clearInterval(holdTimer);holdTimer=null}const ring=el.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}
+  function actionFor(g){return eventData.actions.find(a=>a.gesture===g)}
+  function startHold(a){const ring=el.querySelector('.hold-ring');if(!ring)return;holdStart=Date.now();ring.classList.add('active');const dur=Math.max(1200,(a.duration||2)*1000);holdTimer=setInterval(()=>{const pct=Math.min(100,((Date.now()-holdStart)/dur)*100);ring.style.background=`conic-gradient(var(--color-neutral-progress) ${pct*3.6}deg, transparent 0)`;if(pct>=100){clearHold();ring.classList.add('done');resolvePopup(popup,a)}},45)}
+  el.addEventListener('pointerdown',e=>{if(Game.ended)return;if(!isFrontPopup(popup)){blockNonFrontPopup(popup);return}initAudio();down=true;moved=false;sx=e.clientX;sy=e.clientY;st=Date.now();origX=el.offsetLeft;origY=el.offsetTop;el.setPointerCapture?.(e.pointerId);el.style.zIndex=++Game.zIndexCounter;updateCardLayers();const lp=actionFor('longpress');if(lp)startHold(lp)});
+  el.addEventListener('pointermove',e=>{if(!down||Game.ended||!isFrontPopup(popup))return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>6||Math.abs(dy)>6){moved=true;if(Math.abs(dx)>TAP_MOVE||Math.abs(dy)>TAP_MOVE)clearHold()}el.style.left=Math.max(-30,Math.min(dom.popupLayer.clientWidth-60,origX+dx))+'px';el.style.top=Math.max(0,Math.min(dom.popupLayer.clientHeight-80,origY+dy))+'px';el.classList.add('dragging')});
+  el.addEventListener('pointerup',e=>{if(!down)return;down=false;el.classList.remove('dragging');clearHold();if(Game.ended||!isFrontPopup(popup))return;const dx=e.clientX-sx,dy=e.clientY-sy,dt=Date.now()-st;let gesture=null;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>SWIPE_X)gesture=dx<0?'swipe_left':'swipe_right';else if(Math.abs(dy)>SWIPE_Y)gesture=dy<0?'swipe_up':'swipe_down';if(gesture){const a=actionFor(gesture);if(a){sfxClick();resolvePopup(popup,a);return}wrongGesture(el,'不是这样处理。')}else if(Math.abs(dx)<TAP_MOVE&&Math.abs(dy)<TAP_MOVE&&dt<420){const rc=actionFor('rapid_click'),ca=actionFor('click');if(rc){const now=Date.now();rapidCount=now-lastTap<650?rapidCount+1:1;lastTap=now;const dots=el.querySelector('.rapid-dots');if(dots){dots.classList.add('active');dots.querySelectorAll('span').forEach((s,i)=>s.classList.toggle('filled',i<rapidCount))}if(rapidCount>1)sfxClick();if(rapidCount>=rc.clicks){resolvePopup(popup,rc);return}return}if(ca){sfxClick();resolvePopup(popup,ca);return}}const r=el.dataset.rotation||0;el.style.transition='left .22s cubic-bezier(.25,.8,.25,1.2), top .22s cubic-bezier(.25,.8,.25,1.2)';el.style.left=origX+'px';el.style.top=origY+'px';el.style.transform=`rotate(${r}deg)`;setTimeout(()=>{el.style.transition='transform .25s cubic-bezier(.25,.8,.25,1.2),opacity .3s,box-shadow .3s,border-color .3s,background .3s,left .25s,top .25s'},240)});
+  el.addEventListener('pointercancel',()=>{down=false;clearHold();el.classList.remove('dragging')});
+}
+
+const TUTORIAL_SEQUENCE=[
+  {source:'朋友',icon:'💬',text:'朋友：你现在有空吗？',hint:'← 左滑 暂时忽略',gesture:'left',done:'已暂时忽略',choice:'暂时忽略',effects:{progress:-5,emotion:3,battery:0,persona:-2},explain:'你给自己争到一口气，但这件事没有消失，对方也会感觉你在躲。'},
+  {source:'老板',icon:'💼',text:'老板：这个方案你今晚能不能再改一版？',hint:'→ 右滑 认真处理',gesture:'right',done:'已认真处理',choice:'认真处理',effects:{progress:8,emotion:-4,battery:-3,persona:2},explain:'事情被推进了，人设也稳住一点。代价是你又把今晚往外借了一截。'},
+  {source:'群聊',icon:'💬',text:'工作群 99+，有人好像 @ 了你。',hint:'↑ 上滑 先压下去',gesture:'up',done:'已压下去',choice:'先压下去',effects:{progress:-6,emotion:4,battery:1,persona:-5},explain:'暂时清静了，但群里的缺席会留下痕迹，之后可能还会返场。'},
+  {source:'老师',icon:'📚',text:'老师：这个文件你看一下，今天要反馈。',hint:'↓ 下滑 看完整内容',gesture:'down',done:'已查看详情',choice:'看完整内容',effects:{progress:9,emotion:-5,battery:-5,persona:6},explain:'你知道问题在哪了，进度也动了。只是越看越清楚：这事真得你来扛。'},
+  {source:'语音消息',icon:'◉',text:'家人发来一段很长的语音。',hint:'长按 稳住再回',gesture:'hold',done:'已稳住',choice:'稳住再回',effects:{progress:2,emotion:6,battery:-2,persona:3},explain:'你没有立刻炸掉，也没有完全逃跑。消耗不大，但需要一点耐心。'},
+  {source:'闹钟',icon:'⏰',text:'再不起床就真的来不及了。',hint:'连点 3 次 关掉闹钟',gesture:'tap',done:'已关闭',choice:'立刻关掉闹钟',effects:{progress:7,emotion:-2,battery:-4,persona:0},explain:'今天被强行启动了。进度往前走，但身体并没有同意。'},
+];
+Tutorial.showIntro=function(){this.reset();dom.tutorialContent.innerHTML=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px"><div class="tutorial-intro"><div class="tutorial-avatar-wrap"><span class="tutorial-avatar-emoji">😶</span></div><div class="tutorial-title">先看通知右下角</div><div class="tutorial-desc">手势是固定的，但每条消息的后果不一样。<br>你不是在选按钮，是在分配今天还剩多少自己。</div><button class="tutorial-btn" id="btn-try-demo">看 6 个手势</button><button class="tutorial-btn tutorial-retry-btn" id="btn-skip-demo" style="margin-top:12px">跳过教学</button></div></div>`;document.getElementById('btn-try-demo').addEventListener('click',()=>{initAudio();sfxClick();this.startDemo(0)});document.getElementById('btn-skip-demo').addEventListener('click',()=>{initAudio();sfxClick();this.showRules()})};
+Tutorial.startDemo=function(idx){clearTimeout(this.demoTimer);this.demoIndex=idx;this.currentDemo=TUTORIAL_SEQUENCE[idx];this.renderDemoCard()};
+function tutorialActionIcon(g){const icons={left:'<svg viewBox="0 0 32 32"><path d="M19 8l-8 8 8 8"/><path d="M12 16h14"/></svg>',right:'<svg viewBox="0 0 32 32"><path d="M13 8l8 8-8 8"/><path d="M6 16h14"/></svg>',up:'<svg viewBox="0 0 32 32"><path d="M8 19l8-8 8 8"/><path d="M16 12v14"/></svg>',down:'<svg viewBox="0 0 32 32"><path d="M8 13l8 8 8-8"/><path d="M16 6v14"/></svg>',hold:'<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="5"/><circle cx="16" cy="16" r="11" opacity=".35"/></svg>',tap:'<svg viewBox="0 0 32 32"><circle cx="11" cy="16" r="3"/><circle cx="21" cy="16" r="3"/><path d="M7 24h18" opacity=".45"/></svg>'};return icons[g]||icons.right}
+function tutorialActionText(g){return{left:'向左处理',right:'向右回复',up:'向上暂存',down:'向下展开',hold:'长按确认',tap:'连续点击'}[g]||'完成动作'}
+Tutorial.renderDemoCard=function(){const d=this.currentDemo;const isRapid=d.gesture==='tap';dom.tutorialContent.innerHTML=`<div class="tutorial-step-indicator">手势 ${this.demoIndex+1} / ${TUTORIAL_SEQUENCE.length}</div><div class="tutorial-card-stage"><div class="tutorial-demo-card notification-demo" id="demo-card"><div class="tutorial-demo-header"><span class="tutorial-demo-source"><span class="tutorial-demo-source-icon">${d.icon}</span><span>${d.source}</span></span></div><div class="tutorial-demo-body">${d.text}</div><div class="tutorial-action-cue"><span class="tutorial-action-icon">${tutorialActionIcon(d.gesture)}</span><span class="tutorial-action-text">${tutorialActionText(d.gesture)}</span></div><div class="tutorial-demo-hints"><span>${d.hint}</span></div><div class="gesture-trace ${d.gesture}"></div><div class="hold-ring"></div>${isRapid?'<div class="rapid-dots"><span></span><span></span><span></span></div>':''}</div><div id="demo-done" style="font-size:13px;color:var(--text-muted);letter-spacing:1px;min-height:22px;text-align:center">${this.demoIndex===0?'照着图标提示，亲手操作这张通知。':'亲手完成这一条。'}</div></div><div class="tutorial-nav-area"><button class="tutorial-btn tutorial-retry-btn" id="btn-skip" style="margin-top:0">跳过教学</button></div>`;this.bindInteractiveDemo();document.getElementById('btn-skip').addEventListener('click',()=>{clearTimeout(this.demoTimer);initAudio();sfxClick();startLoading()})};
+Tutorial.bindInteractiveDemo=function(){const d=this.currentDemo,card=document.getElementById('demo-card'),done=document.getElementById('demo-done');let sx=0,sy=0,origX=0,origY=0,down=false,moved=false,holdTimer=null,holdStart=0,taps=0,lastTap=0,completed=false;const pass=()=>{if(completed)return;completed=true;clearInterval(holdTimer);card.querySelector('.gesture-trace')?.remove();done.textContent=d.done;card.style.transition='transform .22s ease, opacity .22s ease';if(d.gesture==='left')card.style.transform='translateX(-120vw)';else if(d.gesture==='right')card.style.transform='translateX(120vw)';else if(d.gesture==='up')card.style.transform='translateY(-120px) scale(.82)';else if(d.gesture==='down')card.style.transform='translateY(24px) scale(1.03)';else card.style.transform='scale(.96)';setTimeout(()=>this.showGestureResult(d),520)};const retry=msg=>{done.textContent=msg;card.classList.add('wrong-action');setTimeout(()=>card.classList.remove('wrong-action'),350)};const clearHold=()=>{if(holdTimer){clearInterval(holdTimer);holdTimer=null}const ring=card.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}};card.addEventListener('pointerdown',e=>{if(completed)return;initAudio();down=true;moved=false;sx=e.clientX;sy=e.clientY;origX=card.offsetLeft;origY=card.offsetTop;card.setPointerCapture?.(e.pointerId);if(d.gesture==='hold'){const ring=card.querySelector('.hold-ring');holdStart=Date.now();ring.classList.add('active');holdTimer=setInterval(()=>{const pct=Math.min(100,(Date.now()-holdStart)/1100*100);ring.style.background=`conic-gradient(var(--color-neutral-progress) ${pct*3.6}deg, transparent 0)`;if(pct>=100){ring.classList.add('done');pass()}},40)}});card.addEventListener('pointermove',e=>{if(!down||completed)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>5||Math.abs(dy)>5){moved=true;if(d.gesture==='hold')clearHold()}card.style.transform=`translate(${dx}px,${dy}px)`});card.addEventListener('pointerup',e=>{if(!down||completed)return;down=false;if(d.gesture==='hold'){clearHold();retry('长按久一点');card.style.transform='translate(0,0)';return}const dx=e.clientX-sx,dy=e.clientY-sy;if(d.gesture==='tap'){if(Math.abs(dx)<14&&Math.abs(dy)<14){const now=Date.now();taps=now-lastTap<650?taps+1:1;lastTap=now;card.querySelectorAll('.rapid-dots span').forEach((s,i)=>s.classList.toggle('filled',i<taps));done.textContent=`还差 ${Math.max(0,3-taps)} 次`;if(taps>=3)pass();return}retry('需要连点 3 次');card.style.transform='translate(0,0)';return}let ok=false;if(d.gesture==='left')ok=dx<-88&&Math.abs(dx)>Math.abs(dy);if(d.gesture==='right')ok=dx>88&&Math.abs(dx)>Math.abs(dy);if(d.gesture==='up')ok=dy<-78&&Math.abs(dy)>Math.abs(dx);if(d.gesture==='down')ok=dy>78&&Math.abs(dy)>Math.abs(dx);if(ok)pass();else{retry(d.gesture==='left'?'往左滑':d.gesture==='right'?'往右滑':d.gesture==='up'?'往上滑':'往下滑');card.style.transition='transform .18s ease';card.style.transform='translate(0,0)';setTimeout(()=>card.style.transition='',180)}});card.addEventListener('pointercancel',()=>{down=false;clearHold();card.style.transform='translate(0,0)'})};
+Tutorial.showGestureResult=function(d){const eff=d.effects||{},rows=[['生活进度','progress'],['情绪稳定','emotion'],['生命电量','battery'],['人设完整','persona']].map(([name,key])=>{const v=eff[key]||0,cls=v>0?'pos':v<0?'neg':'zero';return`<div class="tutorial-result-eff ${cls}">${name} ${v>0?'+':''}${v}</div>`}).join('');const last=this.demoIndex>=TUTORIAL_SEQUENCE.length-1;dom.tutorialContent.innerHTML=`<div class="tutorial-step-indicator">结果 ${this.demoIndex+1} / ${TUTORIAL_SEQUENCE.length}</div><div class="tutorial-card-stage" style="justify-content:flex-end;padding-bottom:24px"><div class="tutorial-result"><div class="tutorial-result-choice">你选择了：<span>${d.choice}</span></div><div class="tutorial-result-effects">${rows}</div><div class="tutorial-result-explain">${d.explain}</div><div class="tutorial-result-btns"><button id="btn-tutorial-known">知道了</button></div></div></div>`;const go=()=>{clearTimeout(this.demoTimer);if(last)this.showRules();else this.startDemo(this.demoIndex+1)};document.getElementById('btn-tutorial-known').addEventListener('click',()=>{initAudio();sfxClick();go()})};
+Tutorial.showRules=function(){clearTimeout(this.demoTimer);dom.tutorialContent.innerHTML=`<div class="tutorial-rules"><div class="tutorial-rules-title">你不是在做选择，<br>你是在勉强维持一天</div><div class="tutorial-rules-card"><div class="tutorial-rules-item"><b>生活进度</b><br>今天的事情有没有被推进。太低说明你什么都没处理完。</div><div class="tutorial-rules-item"><b>生命电量</b><br>你还剩多少精力。太低说明你已经快被一天耗空。</div><div class="tutorial-rules-item"><b>情绪稳定</b><br>你还能不能保持基本冷静。太低说明你已经进入崩溃边缘。</div><div class="tutorial-rules-item"><b>人设完整</b><br>别人眼里你是否还像一个“正常运转的人”。太低说明你开始失控、敷衍、露馅。</div></div><div class="tutorial-rules-note">最终评级会综合四个状态：事情处理得越多越好，但别把自己、情绪和社交表面全部透支掉。</div><div class="tutorial-rules-note" style="text-align:center;color:var(--text-light)">目标不是完美通关，而是尽量活过今天。</div><button class="tutorial-rules-go" id="btn-real-start">开始今天</button></div>`;document.getElementById('btn-real-start').addEventListener('click',()=>{initAudio();sfxClick();startLoading()})};
+Tutorial.showFinal=function(){this.showRules()};
+
+// ==================== MOBILE INTERACTION STABILITY PATCH ====================
+const MAX_ACTIVE_NOTICES=6;
+const MAX_VISIBLE_GHOSTS=3;
+const THREE_CHOICE_POOL={
+  family:[
+    ['swipe_left','先回一句我在忙',{battery:0,emotion:2,persona:3,progress:-2}],
+    ['swipe_right','认真解释一下',{battery:-4,emotion:-3,persona:7,progress:2}],
+    ['rapid_click','连点发几句安抚',{battery:-3,emotion:-2,persona:5,progress:1}],
+    ['longpress','忍住情绪再回复',{battery:-2,emotion:5,persona:4,progress:0}],
+  ],
+  authority:[
+    ['swipe_left','先说在看了',{battery:0,emotion:-2,persona:4,progress:2}],
+    ['swipe_right','立刻答应处理',{battery:-8,emotion:-5,persona:8,progress:10}],
+    ['swipe_down','看清要求再回',{battery:-5,emotion:-4,persona:7,progress:9}],
+    ['longpress','硬着头皮开始做',{battery:-7,emotion:-6,persona:8,progress:12}],
+  ],
+  group:[
+    ['swipe_left','发个表情糊弄',{battery:0,emotion:-2,persona:5,progress:1}],
+    ['swipe_right','认真回一句',{battery:-4,emotion:-3,persona:7,progress:5}],
+    ['swipe_up','假装没看见',{battery:0,emotion:4,persona:-8,progress:-5}],
+    ['rapid_click','连点抢救重点',{battery:-4,emotion:-3,persona:4,progress:7}],
+  ],
+  alarm:[
+    ['swipe_up','再拖五分钟',{battery:3,emotion:1,persona:0,progress:-8}],
+    ['longpress','确认今天开始',{battery:-3,emotion:-2,persona:2,progress:6}],
+    ['rapid_click','立刻关掉',{battery:-4,emotion:-2,persona:0,progress:8}],
+  ],
+  delivery:[
+    ['swipe_left','让他放门口',{battery:1,emotion:2,persona:-3,progress:3}],
+    ['swipe_right','马上联系骑手',{battery:-3,emotion:-2,persona:4,progress:7}],
+    ['longpress','硬着头皮下楼',{battery:-7,emotion:-3,persona:2,progress:10}],
+    ['swipe_down','看清取件信息',{battery:-3,emotion:-2,persona:2,progress:5}],
+  ],
+  default:[
+    ['swipe_left','先拖一下',{battery:0,emotion:3,persona:-4,progress:-5}],
+    ['swipe_right','认真处理',{battery:-5,emotion:-4,persona:6,progress:8}],
+    ['swipe_up','暂时压下去',{battery:0,emotion:4,persona:-5,progress:-6}],
+    ['longpress','稳住处理',{battery:-4,emotion:1,persona:5,progress:7}],
+    ['rapid_click','快速补救',{battery:-4,emotion:-3,persona:3,progress:6}],
+  ],
+};
+function gestureIcon(g){return g==='swipe_left'?'←':g==='swipe_right'?'→':g==='swipe_up'?'↑':g==='swipe_down'?'↓':g==='longpress'?'◎':g==='rapid_click'?'×3':''}
+function actionPoolForType(type){if(type==='mom')return THREE_CHOICE_POOL.family;if(['teacher','boss','ddl','file','schedule','checkin'].includes(type))return THREE_CHOICE_POOL.authority;if(['group','social','friend','classmate','unread'].includes(type))return THREE_CHOICE_POOL.group;if(type==='alarm')return THREE_CHOICE_POOL.alarm;if(type==='delivery')return THREE_CHOICE_POOL.delivery;return THREE_CHOICE_POOL.default}
+function buildThreeActions(evData){const pool=[...actionPoolForType(evData.type)],chosen=[];while(chosen.length<3&&pool.length){const idx=Math.floor(Math.random()*pool.length);chosen.push(pool.splice(idx,1)[0])}return chosen.map(([gesture,name,effects])=>{const a={label:name,gesture,hint:`${gestureIcon(gesture)} ${name}`,effects:{...effects}};if(gesture==='longpress')a.duration=1.6+Math.random()*.6;if(gesture==='rapid_click')a.clicks=3;return a})}
+function prepareEventForPlay(raw){const evData=cloneEvent(raw);evData.actions=buildThreeActions(evData);evData.notificationTitle=evData.source;evData.preview=evData.text.replace(/^[^：:]+[：:]\s*/,'');return evData}
+function compactHint(action){const icon=gestureIcon(action.gesture),name=(action.hint||action.label||'').replace(/^(←|→|↑|↓|◎|◉|×3|•••|左滑|右滑|上滑|下滑|长按|连点)\s*/,'').trim();return `<span class="hint-icon">${icon}</span><span class="hint-text">${name || action.label || ''}</span>`}
+function anchorRect(anchor){const layer=dom.popupLayer,w=layer.clientWidth,h=layer.clientHeight,cw=Math.min(420,w*.88),pad=14;const cx=(w-cw)/2;const bottomBar=118+Math.max(0,parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat')||0));const yFront=Math.min(h-bottomBar-112,Math.max(h*.60,h-250));const map={center_low:[cx,yFront],center:[cx,Math.max(h*.52,yFront-64)],left_float:[Math.max(pad,cx-18),yFront-34],right_float:[Math.min(w-cw-pad,cx+18),yFront-28],top_drop:[cx,Math.max(8,h*.18)]};const base=map[anchor]||map.center_low;return{x:Math.max(pad,Math.min(w-cw-pad,base[0]+randRange(-10,10))),y:Math.max(8,Math.min(h-bottomBar-104,base[1]+randRange(-8,10))),w:cw}}
+function updateCardLayers(){const active=Game.popups.filter(p=>!p.resolved);if(active.length===0)return;const sorted=[...active].sort((a,b)=>(parseInt(a.el.style.zIndex)||0)-(parseInt(b.el.style.zIndex)||0));const front=sorted[sorted.length-1];sorted.forEach((p,i)=>{const depth=sorted.length-1-i;p.el.classList.remove('stack-front','stack-mid','stack-deep','side-hint','ghost-notification','depth-1','depth-2','depth-3');if(depth===0){const pos=p.anchorPos||anchorRect('center_low');p.el.style.display='grid';p.el.classList.add('stack-front');p.el.style.opacity='1';p.el.style.pointerEvents='auto';p.el.style.zIndex=300;p.el.style.left=pos.x+'px';p.el.style.top=pos.y+'px';p.el.style.transform=`rotate(${p.el.dataset.rotation||0}deg) scale(1)`;p.anchorPos=pos;return}if(depth<=MAX_VISIBLE_GHOSTS){p.el.style.display='grid';p.el.classList.add('side-hint','depth-'+depth);p.el.style.pointerEvents='none';p.el.style.zIndex=300-depth;const x=(front.anchorPos?.x||20)+randRange(-8,8);const y=(front.anchorPos?.y||260)-depth*28;const sc=1-depth*.045;p.el.style.left=x+'px';p.el.style.top=Math.max(8,y)+'px';p.el.style.transform=`rotate(${randRange(-2.5,2.5)}deg) scale(${sc})`;return}p.el.style.display='none';p.el.style.pointerEvents='none'});updatePressureInd()}
+function spawnPopup(eventData,isRandom=false,mode='normal'){if(Game.ended||Game.paused)return null;const active=Game.popups.filter(p=>!p.resolved).length;if(active>=MAX_ACTIVE_NOTICES){Game.pendingQueue=Game.pendingQueue||[];Game.pendingQueue.push(eventData);Game.congestionUntil=Date.now()+3000;updatePressureInd();return null}const evData=eventData.actions?.length===3&&eventData.notificationTitle?eventData:prepareEventForPlay(eventData);const id=++Game.popupIdCounter,anchor=chooseAnchor(evData,mode),pos=anchorRect(anchor),el=document.createElement('div');const training=(Date.now()-Game.gameStartTime)<20000;el.className='popup anchor-'+anchor.replace('_','-')+(isRandom?' random-event':'')+(mode==='interrupt'?' interrupt-in':'')+(evData.revisitLabel?' revisit-in':'')+(training?' training-hint':' compact-hint');el.dataset.id=id;el.dataset.revisitLabel=evData.revisitLabel||'';el.dataset.rotation=randRange(-1.6,1.6);el.style.left=pos.x+'px';el.style.top=(pos.y+18)+'px';el.style.zIndex=++Game.zIndexCounter;const timeoutSec=Math.max(6,Math.round(evData.timeout*(Game.pressureScore>70?.9:1)));el.dataset.timeout=timeoutSec;el.dataset.createdAt=Date.now();const hints=evData.actions.map(a=>`<span>${compactHint(a)}</span>`).join('');el.innerHTML=`<div class="popup-header"><span class="popup-source"><span class="popup-source-icon">${evData.icon}</span><span class="popup-source-text">${evData.notificationTitle||evData.source}</span></span><span class="popup-timer">${training?'现在':'1分钟前'}</span></div><div class="popup-countdown-bar"><div class="popup-countdown-fill" style="width:100%"></div></div><div class="popup-body">${evData.preview||evData.text}</div><div class="popup-hints">${hints}</div><div class="hold-ring"></div><div class="rapid-dots"><span></span><span></span><span></span></div><div class="popup-swipe-fb left"></div><div class="popup-swipe-fb right"></div><div class="popup-swipe-fb up"></div><div class="popup-swipe-fb down"></div>`;dom.popupLayer.appendChild(el);const popupObj={id,el,eventData:evData,timeoutSec,resolved:false,isRandom,anchor,anchorPos:pos};Game.popups.push(popupObj);Game.tracker.totalPopups++;bindPopupEvents(popupObj);sfxPopup();requestAnimationFrame(updateCardLayers);updateEmptyHint();return popupObj}
+function bindPopupEvents(popup){const el=popup.el,eventData=popup.eventData;let sx=0,sy=0,st=0,origX=0,origY=0,down=false,holdTimer=null,rapidCount=0,lastTap=0;const SWIPE_X=70,SWIPE_Y=80,TAP_MOVE=14;function a(g){return eventData.actions.find(x=>x.gesture===g)}function clearHold(){if(holdTimer){clearInterval(holdTimer);holdTimer=null}const ring=el.querySelector('.hold-ring');if(ring){ring.classList.remove('active','done');ring.style.background=''}}function startHold(act){const ring=el.querySelector('.hold-ring');if(!ring)return;const start=Date.now(),dur=Math.max(1200,(act.duration||1.8)*1000);ring.classList.add('active');holdTimer=setInterval(()=>{const pct=Math.min(100,(Date.now()-start)/dur*100);ring.style.background=`conic-gradient(var(--color-neutral-progress) ${pct*3.6}deg, transparent 0)`;if(pct>=100){clearHold();resolvePopup(popup,act)}},45)}el.addEventListener('pointerdown',e=>{if(Game.ended)return;if(!isFrontPopup(popup)){blockNonFrontPopup(popup);return}initAudio();down=true;sx=e.clientX;sy=e.clientY;st=Date.now();origX=el.offsetLeft;origY=el.offsetTop;el.setPointerCapture?.(e.pointerId);document.getElementById('bottom-bar')?.classList.add('drag-locked');const lp=a('longpress');if(lp)startHold(lp)});el.addEventListener('pointermove',e=>{if(!down||Game.ended||!isFrontPopup(popup))return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>TAP_MOVE||Math.abs(dy)>TAP_MOVE)clearHold();el.classList.add('dragging');el.style.left=Math.max(-30,Math.min(dom.popupLayer.clientWidth-60,origX+dx))+'px';el.style.top=Math.max(0,Math.min(dom.popupLayer.clientHeight-100,origY+dy))+'px'});el.addEventListener('pointerup',e=>{document.getElementById('bottom-bar')?.classList.remove('drag-locked');if(!down)return;down=false;el.classList.remove('dragging');clearHold();if(Game.ended||!isFrontPopup(popup))return;const dx=e.clientX-sx,dy=e.clientY-sy,dt=Date.now()-st;let g=null;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>=SWIPE_X)g=dx<0?'swipe_left':'swipe_right';else if(Math.abs(dy)>=SWIPE_Y)g=dy<0?'swipe_up':'swipe_down';if(g){const act=a(g);if(act){resolvePopup(popup,act);return}wrongGesture(el,'不是这条路')}else if(Math.abs(dx)<TAP_MOVE&&Math.abs(dy)<TAP_MOVE&&dt<420){const rc=a('rapid_click'),ca=a('click');if(rc){const now=Date.now();rapidCount=now-lastTap<650?rapidCount+1:1;lastTap=now;el.querySelectorAll('.rapid-dots span').forEach((s,i)=>s.classList.toggle('filled',i<rapidCount));if(rapidCount>=3){resolvePopup(popup,rc);return}return}if(ca){resolvePopup(popup,ca);return}}const r=el.dataset.rotation||0;el.style.transition='left .22s cubic-bezier(.25,.8,.25,1.2), top .22s cubic-bezier(.25,.8,.25,1.2)';el.style.left=origX+'px';el.style.top=origY+'px';el.style.transform=`rotate(${r}deg)`;setTimeout(()=>el.style.transition='',240)});el.addEventListener('pointercancel',()=>{down=false;clearHold();document.getElementById('bottom-bar')?.classList.remove('drag-locked')})}
+function timeoutPopup(popup){if(!Game.popups.includes(popup)||popup.resolved)return;popup.resolved=true;updateStats(popup.eventData.timeoutEffects||{battery:0,emotion:-3,persona:-4,progress:-2});Game.missedLog=Game.missedLog||[];Game.missedLog.push({t:Date.now(),event:popup.eventData});Game.tracker.timedOutPopups++;Game.consecutiveIgnores++;Game.pressureScore=Math.min(100,Game.pressureScore+6);popup.el.classList.add('timed-out');sfxTimeout();showFeedback(popup.el,'错过了');setTimeout(()=>removePopup(popup),350)}
+function removePopup(popup){const idx=Game.popups.indexOf(popup);if(idx>=0)Game.popups.splice(idx,1);if(popup.el&&popup.el.parentNode)popup.el.remove();if(Game.popups.filter(p=>!p.resolved).length<=4)Game.congestionUntil=0;updateCardLayers();updateEmptyHint();updatePressureInd()}
+function buildRhythmPlan(){const duration=(Game.gameDuration||150)*1000,start=Date.now(),opening=randRange(8000,14000),windowCount=Math.random()<.72?1:2,windows=[];let cursor=start+opening+randRange(8000,18000);for(let i=0;i<windowCount;i++){const latest=start+Math.max(opening+12000,duration-26000),at=Math.min(cursor,latest);windows.push({start:at,end:at+randRange(7500,13000),used:false});cursor=at+randRange(28000,46000)}return{start,openingUntil:start+opening,windows,recoveryUntil:0,pressureUsed:false,lastMode:'calm'}}
+function rhythmPressureWindow(now){return(Game.rhythmPlan?.windows||[]).find(w=>now>=w.start&&now<=w.end)}
+function stageWaveMode(){const now=Date.now(),plan=Game.rhythmPlan||(Game.rhythmPlan=buildRhythmPlan());if(now<plan.openingUntil)return weightedPick([['calm',58],['trickle',42]]);if(now<plan.recoveryUntil)return'recovery';const window=rhythmPressureWindow(now);if(window){window.used=true;plan.pressureUsed=true;return'pressure'}return weightedPick([['calm',36],['trickle',46],['burst',18]])}
+function waveRuleFor(mode){return{calm:{count:[0,1],gap:[520,980],after:[760,1450],idle:[620,1150]},trickle:{count:[1,2],gap:[520,900],after:[850,1600],idle:[560,1100]},burst:{count:[2,4],gap:[320,620],after:[1000,1900],idle:[620,1200]},pressure:{count:[3,5],gap:[260,520],after:[2200,3800],idle:[680,1250]},recovery:{count:[0,1],gap:[700,1200],after:[1500,2700],idle:[900,1500]}}[mode]||{count:[1,1],gap:[600,900],after:[900,1400],idle:[600,1000]}}
+function spawnWaveItem(i,total){if(Game.ended||Game.paused)return;if((Game.totalSpawned||0)>=(Game.targetEventTotal||22))return;const active=Game.popups.filter(p=>!p.resolved).length;if(active>=5){Game.congestionUntil=Date.now()+randRange(1600,2800);return}let evData=(Game.pendingQueue&&Game.pendingQueue.shift())||dueDebtEvent()||pickStageEvent();const mode=evData.revisitLabel?'revisit':(canInterject(evData)?'interrupt':'normal');if(mode==='interrupt')Game.stageInterrupts++;const popup=spawnPopup(evData,!!evData.revisitLabel,mode);if(popup)Game.totalSpawned=(Game.totalSpawned||0)+1}
+function finishIfNoMoreEvents(){if(Game.ended||!Game.rhythmPlan?.pressureUsed)return false;const active=Game.popups.filter(p=>!p.resolved).length;if((Game.totalSpawned||0)>=(Game.targetEventTotal||22)&&active===0){setTimeout(()=>{if(!Game.ended&&Game.popups.filter(p=>!p.resolved).length===0)endGame(true)},350);return true}return false}
+function scheduleNextSpawn(){if(Game.ended||Game.paused)return;if(finishIfNoMoreEvents())return;const mode=stageWaveMode(),rule=waveRuleFor(mode),idle=randRange(rule.idle[0],rule.idle[1]),count=Math.floor(randRange(rule.count[0],rule.count[1]+1));Game.waveMode=mode;if(mode==='pressure'){Game.targetEventTotal=Math.max(Game.targetEventTotal||22,(Game.totalSpawned||0)+count);Game.rhythmPlan.recoveryUntil=Date.now()+idle+count*rule.gap[1]+randRange(1800,3200)}Game.spawnTimer=setTimeout(()=>{if(Game.ended||Game.paused){scheduleNextSpawn();return}if(finishIfNoMoreEvents())return;if(Date.now()<(Game.congestionUntil||0)){scheduleNextSpawn();return}let t=0;for(let i=0;i<count;i++){t+=randRange(rule.gap[0],rule.gap[1]);setTimeout(()=>spawnWaveItem(i,count),t)}Game.spawnTimer=setTimeout(()=>{Game.waveMode='calm';scheduleNextSpawn()},t+randRange(rule.after[0],rule.after[1]))},idle)}
+function updatePressureInd(){const n=Game.popups.filter(p=>!p.resolved).length,pending=Game.pendingQueue?.length||0,ind=dom.pressureInd;ind.classList.remove('show','high');if(n>=6){ind.textContent='拥堵 '+n;ind.classList.add('show','high')}else if(n>=4){ind.textContent='待处理 '+n+(pending?` +${pending}`:'');ind.classList.add('show',n>=5?'high':'')}}
+function startGame(){clearTimeout(Game.spawnTimer);clearInterval(Game.gameLoopTimer);showScreen(dom.game);Game.stats={battery:70,emotion:65,persona:75,progress:30};Game.popups=[];Game.popupIdCounter=0;Game.zIndexCounter=100;Game.gameStartTime=Date.now();Game.ended=false;Game.gameTime=0;Game.paused=false;Game.lastEmptyHint=0;Game.pressureScore=12;Game.consecutiveIgnores=0;Game.tracker={totalPopups:0,handledPopups:0,timedOutPopups:0,fakeSmileCount:0,ignoreCount:0,honestCount:0,crisisCount:0,longPressSuccess:0,longPressFail:0,swipeAway:0};Game.usedEvents=new Set();Game.debtQueue=[];Game.pendingQueue=[];Game.missedLog=[];Game.congestionUntil=0;Game.dayStage=null;Game.targetEventTotal=Math.floor(randRange(15,26));Game.totalSpawned=0;Game.stageBudget=0;Game.stageSpawned=0;Game.stageInterrupts=0;Game.usedStageEvents=new Set();Game.waveMode='calm';Game.rhythmPlan=buildRhythmPlan();dom.popupLayer.innerHTML='<div id="empty-hint"></div><div id="pressure-indicator"></div>';dom.emptyHint=$('#empty-hint');dom.pressureInd=$('#pressure-indicator');dom.game.classList.remove('shaking','critical-border');dom.crisisOverlay.classList.remove('active');dom.phaseTransition.classList.remove('show');dom.phaseTag.textContent='';dom.batteryIcon.style.width='60%';dom.batteryIcon.style.background='var(--color-neutral-progress)';updateStatUI();updateAvatarStatus();domEmergency.drawer.classList.remove('open');domEmergency.backdrop.classList.remove('show');domEmergency.list.innerHTML='';domEmergency.badge.style.display='none';domEmergency.clearCount.textContent='(0)';showIdleHint();setTimeout(scheduleNextSpawn,900);Game.gameLoopTimer=setInterval(()=>{updateCountdowns();checkPhase()},200)}
+
+function updateCountdowns(){if(Game.paused)return;const now=Date.now();Game.popups.forEach(p=>{if(!p||p.resolved||!p.el)return;const createdAt=Number(p.el.dataset.createdAt)||now,timeoutSec=Math.max(.1,Number(p.timeoutSec)||Number(p.el.dataset.timeout)||6),elapsed=(now-createdAt)/1000,remaining=Math.max(0,timeoutSec-elapsed),progress=Math.max(0,Math.min(1,remaining/timeoutSec)),timerEl=p.el.querySelector('.popup-timer'),barEl=p.el.querySelector('.popup-countdown-bar'),fillEl=p.el.querySelector('.popup-countdown-fill');p.timeoutSec=timeoutSec;p.el.style.setProperty('--countdown-progress',progress);if(timerEl){const rm=Math.ceil(remaining),rmm=Math.floor(rm/60),rss=Math.floor(rm%60);timerEl.textContent=rmm>0?String(rmm).padStart(2,'0')+':'+String(rss).padStart(2,'0'):'00:'+String(rss).padStart(2,'0');timerEl.classList.toggle('urgent',remaining<5)}if(barEl)barEl.classList.toggle('urgent',remaining<5);if(fillEl){fillEl.style.transform=`scaleX(${progress})`;fillEl.classList.toggle('urgent',remaining<5)}p.el.classList.remove('urgent','critical-time');if(remaining<3)p.el.classList.add('critical-time');else if(remaining<5)p.el.classList.add('urgent');if(remaining<1.5&&remaining>0&&!p._shook){p._shook=true;dom.game.classList.add('shaking');setTimeout(()=>{if((Game.pressureScore||0)<88)dom.game.classList.remove('shaking')},200)}if(remaining<=0)timeoutPopup(p)})}
+
+// ==================== EMERGENCY DRAWER ====================
+function openEmergencyDrawer(){
+  if(Game.ended||Game.paused)return;
+  // Find most urgent popups: closest to timeout, worst effects
+  const now=Date.now();
+  const urgent=Game.popups.filter(p=>!p.resolved).map(p=>{
+    const elapsed=(now-parseInt(p.el.dataset.createdAt))/1000;
+    const remaining=Math.max(0,p.timeoutSec-elapsed);
+    const worstEffect=Math.min(0,...(p.eventData.timeoutEffects?[p.eventData.timeoutEffects.battery||0,p.eventData.timeoutEffects.emotion||0,p.eventData.timeoutEffects.persona||0,p.eventData.timeoutEffects.progress||0]:[0]));
+    return {popup:p,remaining,worstEffect};
+  }).sort((a,b)=>a.remaining-b.remaining).slice(0,5);
+  domEmergency.list.innerHTML=urgent.length===0
+    ?'<div class="emergency-empty">暂无紧急通知<br>处理得不错</div>'
+    :urgent.map(u=>{
+      const p=u.popup,d=p.eventData,rm=Math.ceil(u.remaining);
+      const rmm=Math.floor(rm/60),rss=Math.floor(rm%60);
+      const timeDisp=rmm>0?String(rmm).padStart(2,'0')+':'+String(rss).padStart(2,'0'):'00:'+String(rss).padStart(2,'0');
+      const effects=[];
+      if(d.timeoutEffects){
+        if(d.timeoutEffects.battery)effects.push(`生命${d.timeoutEffects.battery>0?'+':''}${d.timeoutEffects.battery}`);
+        if(d.timeoutEffects.emotion)effects.push(`情绪${d.timeoutEffects.emotion>0?'+':''}${d.timeoutEffects.emotion}`);
+        if(d.timeoutEffects.persona)effects.push(`人设${d.timeoutEffects.persona>0?'+':''}${d.timeoutEffects.persona}`);
+        if(d.timeoutEffects.progress)effects.push(`进度${d.timeoutEffects.progress>0?'+':''}${d.timeoutEffects.progress}`);
+      }
+      const bestAction=d.actions[0]; // First action is usually best
+      return`<div class="emergency-item">
+        <div class="emergency-item-header">
+          <span class="emergency-item-source"><span class="emergency-item-source-icon">${d.icon}</span>${d.source}</span>
+          <span class="emergency-item-time">${timeDisp}</span>
+        </div>
+        <div class="emergency-item-body">${d.text}</div>
+        ${effects.length?`<div class="emergency-item-effects">${effects.map(e=>`<span class="emergency-item-eff">${e}</span>`).join('')}</div>`:''}
+        <div class="emergency-item-actions">
+          <button class="emergency-item-btn primary" data-popup-id="${p.id}">跳转到此卡片</button>
+          ${bestAction?`<span style="font-size:10px;color:var(--text-muted);align-self:center">推荐：${bestAction.label}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  domEmergency.drawer.classList.add('open');
+  domEmergency.backdrop.classList.add('show');
+  // Bind locate buttons
+  domEmergency.list.querySelectorAll('.emergency-item-btn.primary').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const popupId=parseInt(btn.dataset.popupId);
+      const p=Game.popups.find(x=>x.id===popupId);
+      if(p&&p.el){
+        p.el.style.zIndex=++Game.zIndexCounter;
+        p.el.classList.add('burst-in');
+        updateCardLayers();
+        sfxClick();
+      }
+      closeEmergencyDrawer();
+    });
+  });
+}
+function closeEmergencyDrawer(){domEmergency.drawer.classList.remove('open');domEmergency.backdrop.classList.remove('show')}
+function updateEmergencyBadge(){
+  const urgentCount=Game.popups.filter(p=>!p.resolved&&(p.el.querySelector('.popup-timer.urgent'))).length;
+  domEmergency.badge.textContent=urgentCount;
+  domEmergency.badge.style.display=urgentCount>0?'flex':'none';
+}
+function updateClearCount(){
+  domEmergency.clearCount.textContent='('+Game.popups.filter(p=>!p.resolved).length+')';
+  if(typeof finishIfNoMoreEvents==='function')finishIfNoMoreEvents();
+}
+
+// ==================== INIT ====================
+function init(){
+  showScreen(dom.intro);
+  $('#btn-start').addEventListener('click',()=>{initAudio();sfxClick();showScreen(dom.tutorial);Tutorial.showIntro()});
+  $('#btn-restart').addEventListener('click',()=>{initAudio();sfxClick();startGame()});
+  dom.popupLayer.addEventListener('touchmove',e=>{if(e.target.closest('.popup'))e.preventDefault()},{passive:false});
+  document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+  // Bottom bar
+  domEmergency.emergencyBtn.addEventListener('click',()=>{initAudio();sfxClick();openEmergencyDrawer()});
+  domEmergency.close.addEventListener('click',()=>{initAudio();sfxClick();closeEmergencyDrawer()});
+  domEmergency.backdrop.addEventListener('click',()=>{closeEmergencyDrawer()});
+  domEmergency.clearBtn.addEventListener('click',()=>{
+    initAudio();sfxClick();
+    Game.popups.filter(p=>!p.resolved).forEach(p=>{if(p.eventData&&shouldCreateDebt({label:'清空',gesture:'clear'}))revisitEvent(p.eventData,{label:'清空',gesture:'clear'});p.resolved=true;p.el.style.transform='';p.el.classList.add('resolved');setTimeout(()=>removePopup(p),250)});
+    updateStats({battery:0,emotion:-5,persona:-5,progress:-5});
+    updateClearCount();
+  });
+  domEmergency.tasksBtn.addEventListener('click',()=>{
+    initAudio();sfxClick();
+    // Show task summary: count active popups
+    const n=Game.popups.filter(p=>!p.resolved).length;
+    if(n===0){spawnSystemToast();return}
+    const t=document.createElement('div');
+    t.className='system-toast';
+    t.textContent=`待处理通知：${n} 条`;
+    dom.popupLayer.appendChild(t);
+    setTimeout(()=>t.remove(),2500);
+  });
+}
+init();
+</script>
+</body>
+</html>
